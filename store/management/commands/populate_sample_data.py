@@ -30,8 +30,9 @@ class Command(BaseCommand):
                     defaults={
                         'category': category,
                         'price': price,
-                        'description': f'Sample description for {product_name}',
-                        'is_active': True,
+                        'short_description': f'Sample description for {product_name}',
+                        'full_description': f'Sample description for {product_name}',
+                        'is_available': True,
                     }
                 )
                 created_products.append(p)

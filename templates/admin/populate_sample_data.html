@@ -4,12 +4,7 @@
 {% block content %}
 <div class="dashboard-module" style="margin-bottom: 2em;">
     <h2>Shop Demo Data</h2>
-    <form method="post" action="{% url 'admin:populate_sample_data' %}" style="margin-top: 1em;">
-        {% csrf_token %}
-        <button type="submit" class="button btn btn-success" style="font-size: 1.1em; padding: 0.5em 1.5em;">
-            <i class="fas fa-magic"></i> Populate Shop with Sample Categories & Products
-        </button>
-    </form>
+    <!-- Removed broken populate sample data form -->
     {% if messages %}
         <ul class="messagelist">
             {% for message in messages %}

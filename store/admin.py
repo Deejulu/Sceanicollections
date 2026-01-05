@@ -57,7 +57,17 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
     inlines = [ProductImageInline]
-    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products']
+    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products', 'populate_sample_data']
+
+    def populate_sample_data(self, request, queryset):
+        if not request.user.is_superuser:
+            self.message_user(request, "Only superusers can populate sample data.", level=messages.ERROR)
+            return
+        from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
+        cmd = PopulateSampleDataCommand()
+        cmd.handle()
+        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+    populate_sample_data.short_description = "Populate sample categories and products"
 
     def mark_as_featured(self, request, queryset):
         queryset.update(is_featured=True)
@@ -86,7 +96,17 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     list_editable = ('is_active',)
     prepopulated_fields = {'slug': ('name',)}
-    actions = []
+    actions = ['populate_sample_data']
+
+    def populate_sample_data(self, request, queryset):
+        if not request.user.is_superuser:
+            self.message_user(request, "Only superusers can populate sample data.", level=messages.ERROR)
+            return
+        from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
+        cmd = PopulateSampleDataCommand()
+        cmd.handle()
+        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+    populate_sample_data.short_description = "Populate sample categories and products"
 
     def product_count(self, obj):
         return obj.products.count()

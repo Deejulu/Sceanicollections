@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} - SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+.product-hero {background: linear-gradient(135deg, #1f2937 0%, #78350f 100%);}
+.product-image-main {transition: transform 0.5s ease;}
+.product-image-main:hover {transform: scale(1.05);}
+.thumbnail {transition: all 0.3s ease; border: 2px solid transparent;}
+.thumbnail:hover, .thumbnail.active {border-color: #D4AF37; transform: scale(1.05);}
+.note-badge {transition: all 0.3s ease;}
+.note-badge:hover {transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
+.quantity-btn {transition: all 0.2s ease;}
+.quantity-btn:hover {background-color: #D4AF37; color: white;}
+.add-to-cart-btn {transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);}
+.add-to-cart-btn:hover {transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);}
+.product-nav-card {transition: all 0.3s ease;}
+.product-nav-card:hover {transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.15);}
+.tab-btn {transition: all 0.3s ease;}
+.tab-btn.active {border-bottom: 3px solid #D4AF37; color: #D4AF37;}
+.related-card {transition: all 0.3s ease;}
+.related-card:hover {transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1);}
+.sticky-cart {position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; transform: translateY(100%); transition: transform 0.3s ease;}
+.sticky-cart.show {transform: translateY(0);}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+<!-- Breadcrumb -->
+<div class="bg-white border-b">
+<div class="container mx-auto px-4 py-2 sm:py-3">
+<nav class="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm overflow-x-auto">
+<a href="{% url 'store:product_list' %}" class="text-gray-500 hover:text-scent-gold whitespace-nowrap"><i class="fas fa-home mr-1"></i><span class="hidden sm:inline">Shop</span></a>
+<i class="fas fa-chevron-right text-gray-300 text-[10px] sm:text-xs"></i>
+<a href="{% url 'store:category_detail' slug=product.category.slug %}" class="text-gray-500 hover:text-scent-gold whitespace-nowrap truncate max-w-[80px] sm:max-w-none">{{ product.category.name }}</a>
+<i class="fas fa-chevron-right text-gray-300 text-[10px] sm:text-xs"></i>
+<span class="text-gray-900 font-medium truncate max-w-[100px] sm:max-w-[200px]">{{ product.name }}</span>
+</nav>
+</div>
+</div>
+
+<!-- Main Product Section -->
+<div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+<!-- Product Images -->
+<div class="space-y-4">
+<div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+<div class="relative aspect-square">
+{% if product.images.first %}<img id="mainImage" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image-main w-full h-full object-cover">{% else %}<div class="w-full h-full bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center"><i class="fas fa-wine-bottle text-amber-300 text-8xl"></i></div>{% endif %}
+<!-- Badges -->
+<div class="absolute top-4 left-4 space-y-2">{% if product.is_new %}<span class="block bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">NEW</span>{% endif %}{% if product.is_bestseller %}<span class="block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">BESTSELLER</span>{% endif %}{% if product.is_featured %}<span class="block bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">FEATURED</span>{% endif %}{% if product.is_sale %}<span class="block bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">SALE</span>{% endif %}</div>
+<!-- Wishlist Button -->
+<button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 transition"><i class="far fa-heart text-gray-400 hover:text-red-500"></i></button>
+</div>
+</div>
+<!-- Thumbnail Gallery -->
+{% if product.images.all %}
+<div class="flex space-x-3 overflow-x-auto pb-2">
+{% for image in product.images.all %}<button onclick="changeImage('{{ image.image.url }}')" class="thumbnail flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white shadow"><img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover"></button>{% endfor %}
+</div>
+{% endif %}
+</div>
+
+<!-- Product Info -->
+<div class="space-y-6">
+<!-- Brand & Category -->
+<div class="flex items-center space-x-3">
+{% if product.brand %}<span class="px-3 py-1 bg-gray-900 text-white text-sm font-medium rounded-full">{{ product.brand.name }}</span>{% endif %}
+<a href="{% url 'store:category_detail' slug=product.category.slug %}" class="px-3 py-1 bg-amber-100 text-amber-800 text-sm font-medium rounded-full hover:bg-amber-200 transition">{{ product.category.name }}</a>
+</div>
+
+<!-- Product Name -->
+<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{{ product.name }}</h1>
+
+<!-- Rating & Views -->
+<div class="flex flex-wrap items-center gap-2 sm:gap-4">
+<div class="flex items-center"><div class="flex text-amber-400 text-sm sm:text-base">{% for i in "12345" %}{% with i|add:0 as star_num %}{% if product.average_rating >= star_num %}<i class="fas fa-star"></i>{% elif product.average_rating >= star_num|add:-0.5 %}<i class="fas fa-star-half-alt"></i>{% else %}<i class="far fa-star"></i>{% endif %}{% endwith %}{% endfor %}</div><span class="ml-2 text-gray-600 text-xs sm:text-sm">({{ product.review_count }} review{{ product.review_count|pluralize }})</span></div>
+<span class="text-gray-400 hidden sm:inline">|</span>
+<span class="text-gray-500 text-xs sm:text-sm"><i class="fas fa-eye mr-1"></i> {{ product.view_count }} views</span>
+</div>
+
+<!-- Price -->
+<div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 sm:p-6">
+<div class="flex flex-wrap items-baseline gap-2 sm:gap-4">
+<span class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">₦{{ product.price|floatformat:2 }}</span>
+{% if product.compare_price %}<span class="text-base sm:text-xl text-gray-400 line-through">₦{{ product.compare_price|floatformat:2 }}</span><span class="px-2 py-1 bg-red-100 text-red-600 text-xs sm:text-sm font-bold rounded">SAVE {{ product.discount_percentage|default:"20" }}%</span>{% endif %}
+</div>
+<p class="text-xs sm:text-sm text-gray-500 mt-2"><i class="fas fa-truck mr-1"></i> Free delivery on orders over ₦50,000</p>
+</div>
+
+<!-- Short Description -->
+<p class="text-gray-600 text-lg leading-relaxed">{{ product.short_description }}</p>
+
+<!-- Product Details Grid -->
+<div class="grid grid-cols-2 gap-2 sm:gap-4">
+<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Size</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.size_ml }}ml</span></div>
+<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Concentration</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.get_concentration_display }}</span></div>
+<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Gender</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.get_gender_display }}</span></div>
+<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Season</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.get_season_display }}</span></div>
+{% if product.longevity %}<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Longevity</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.longevity }}</span></div>{% endif %}
+{% if product.sillage %}<div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-100"><span class="block text-[10px] sm:text-xs text-gray-400 uppercase mb-0.5 sm:mb-1">Sillage</span><span class="font-semibold text-gray-900 text-sm sm:text-base">{{ product.sillage }}</span></div>{% endif %}
+</div>
+
+<!-- Scent Notes -->
+{% if top_notes_list or heart_notes_list or base_notes_list %}
+<div class="bg-white rounded-xl p-6 border border-gray-100">
+<h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-wind text-scent-gold mr-2"></i> Fragrance Notes</h3>
+<div class="space-y-4">
+{% if top_notes_list %}<div><span class="text-xs text-gray-400 uppercase block mb-2">Top Notes</span><div class="flex flex-wrap gap-2">{% for note in top_notes_list %}<span class="note-badge px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">{{ note }}</span>{% endfor %}</div></div>{% endif %}
+{% if heart_notes_list %}<div><span class="text-xs text-gray-400 uppercase block mb-2">Heart Notes</span><div class="flex flex-wrap gap-2">{% for note in heart_notes_list %}<span class="note-badge px-3 py-1 bg-pink-100 text-pink-700 text-sm rounded-full">{{ note }}</span>{% endfor %}</div></div>{% endif %}
+{% if base_notes_list %}<div><span class="text-xs text-gray-400 uppercase block mb-2">Base Notes</span><div class="flex flex-wrap gap-2">{% for note in base_notes_list %}<span class="note-badge px-3 py-1 bg-amber-100 text-amber-700 text-sm rounded-full">{{ note }}</span>{% endfor %}</div></div>{% endif %}
+</div>
+</div>
+{% endif %}
+
+<!-- Stock Status -->
+<div class="flex items-center space-x-3">
+{% if product.stock_quantity > 10 %}<span class="flex items-center text-green-600"><i class="fas fa-check-circle mr-2"></i> In Stock ({{ product.stock_quantity }} available)</span>{% elif product.stock_quantity > 0 %}<span class="flex items-center text-amber-600"><i class="fas fa-exclamation-triangle mr-2"></i> Only {{ product.stock_quantity }} left - Order soon!</span>{% else %}<span class="flex items-center text-red-600"><i class="fas fa-times-circle mr-2"></i> Out of Stock</span>{% endif %}
+</div>
+
+<!-- Add to Cart Section -->
+<div class="bg-white rounded-xl p-4 sm:p-6 border-2 border-gray-100 space-y-4">
+<form action="{% url 'cart:add' product.id %}" method="post" id="add-to-cart-form">
+{% csrf_token %}
+<!-- Quantity -->
+<div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
+<span class="text-gray-700 font-medium text-sm sm:text-base">Quantity:</span>
+<div class="flex items-center border-2 border-gray-200 rounded-lg w-fit">
+<button type="button" onclick="decreaseQty()" class="quantity-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-l-lg"><i class="fas fa-minus text-sm"></i></button>
+<input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="w-12 sm:w-16 h-9 sm:h-10 text-center border-x-2 border-gray-200 font-semibold text-sm sm:text-base">
+<button type="button" onclick="increaseQty()" class="quantity-btn w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-r-lg"><i class="fas fa-plus text-sm"></i></button>
+</div>
+</div>
+<!-- Buttons -->
+<div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+<button type="submit" class="add-to-cart-btn flex-1 bg-gray-900 text-white py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-sm sm:text-lg hover:bg-gray-800"><i class="fas fa-shopping-cart mr-2"></i> Add to Cart</button>
+<button type="button" class="flex-1 sm:flex-none border-2 border-gray-900 text-gray-900 py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-900 hover:text-white transition"><i class="fas fa-bolt mr-2"></i> Buy Now</button>
+</div>
+</form>
+</div>
+
+<!-- Trust Badges -->
+<div class="grid grid-cols-3 gap-4 text-center">
+<div class="p-4"><i class="fas fa-shield-alt text-2xl text-scent-gold mb-2"></i><p class="text-xs text-gray-600">100% Authentic</p></div>
+<div class="p-4"><i class="fas fa-undo text-2xl text-scent-gold mb-2"></i><p class="text-xs text-gray-600">Easy Returns</p></div>
+<div class="p-4"><i class="fas fa-lock text-2xl text-scent-gold mb-2"></i><p class="text-xs text-gray-600">Secure Payment</p></div>
+</div>
+</div>
+</div>
+
+<!-- Product Tabs -->
+<div class="mt-12 bg-white rounded-2xl shadow-lg overflow-hidden">
+<div class="border-b">
+<div class="flex overflow-x-auto">
+<button onclick="showTab('description')" class="tab-btn active px-6 py-4 font-semibold text-gray-600 whitespace-nowrap" id="tab-description">Description</button>
+<button onclick="showTab('ingredients')" class="tab-btn px-6 py-4 font-semibold text-gray-600 whitespace-nowrap" id="tab-ingredients">Ingredients</button>
+<button onclick="showTab('howto')" class="tab-btn px-6 py-4 font-semibold text-gray-600 whitespace-nowrap" id="tab-howto">How to Use</button>
+<button onclick="showTab('reviews')" class="tab-btn px-6 py-4 font-semibold text-gray-600 whitespace-nowrap" id="tab-reviews">Reviews ({{ product.review_count }})</button>
+</div>
+</div>
+<div class="p-6">
+<div id="content-description" class="tab-content">
+<div class="prose max-w-none">{{ product.full_description|safe }}</div>
+</div>
+<div id="content-ingredients" class="tab-content hidden">
+{% if product.ingredients %}<div class="prose max-w-none">{{ product.ingredients|safe }}</div>{% else %}<p class="text-gray-500">Ingredients information not available.</p>{% endif %}
+</div>
+<div id="content-howto" class="tab-content hidden">
+{% if product.how_to_use %}<div class="prose max-w-none">{{ product.how_to_use|safe }}</div>{% else %}<div class="space-y-4"><h4 class="font-semibold text-gray-900">Application Tips:</h4><ul class="list-disc list-inside text-gray-600 space-y-2"><li>Apply to pulse points: wrists, neck, behind ears</li><li>Spray from 6-8 inches away from skin</li><li>Don't rub wrists together - let it dry naturally</li><li>Layer with matching body lotion for longer lasting fragrance</li><li>Store in a cool, dry place away from direct sunlight</li></ul></div>{% endif %}
+</div>
+<div id="content-reviews" class="tab-content hidden">
+{% include 'reviews/_review_form.html' %}
+{% include 'reviews/_review_list.html' %}
+</div>
+</div>
+</div>
+
+<!-- Related Products with Navigation -->
+{% if related_products %}
+<div class="mt-12">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-bold text-gray-900"><i class="fas fa-sparkles text-scent-gold mr-2"></i> You May Also Like</h2>
+<div class="flex space-x-2">
+<button onclick="scrollRelated('left')" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-scent-gold hover:text-scent-gold transition"><i class="fas fa-chevron-left"></i></button>
+<button onclick="scrollRelated('right')" class="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-scent-gold hover:text-scent-gold transition"><i class="fas fa-chevron-right"></i></button>
+</div>
+</div>
+<div id="related-container" class="flex space-x-6 overflow-x-auto pb-4 scroll-smooth" style="scrollbar-width: none;">
+{% for related in related_products %}
+<div class="related-card flex-shrink-0 w-72 bg-white rounded-xl shadow-lg overflow-hidden">
+<a href="{% url 'store:product_detail' slug=related.slug %}">
+<div class="relative h-48 overflow-hidden">
+{% if related.images.first %}<img src="{{ related.images.first.image.url }}" alt="{{ related.name }}" class="w-full h-full object-cover hover:scale-110 transition duration-500">{% else %}<div class="w-full h-full bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center"><i class="fas fa-wine-bottle text-amber-300 text-4xl"></i></div>{% endif %}
+{% if related.is_new %}<span class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">NEW</span>{% endif %}
+</div>
+</a>
+<div class="p-4">
+<a href="{% url 'store:category_detail' slug=related.category.slug %}" class="text-xs text-scent-gold font-medium">{{ related.category.name }}</a>
+<a href="{% url 'store:product_detail' slug=related.slug %}" class="block mt-1"><h3 class="font-semibold text-gray-900 hover:text-scent-gold line-clamp-2">{{ related.name }}</h3></a>
+<div class="flex items-center justify-between mt-3">
+<span class="text-lg font-bold text-gray-900">₦{{ related.price|floatformat:2 }}</span>
+<form action="{% url 'cart:add' related.id %}" method="post" class="inline">{% csrf_token %}<input type="hidden" name="quantity" value="1"><button type="submit" class="w-10 h-10 bg-gray-900 text-white rounded-lg hover:bg-scent-gold transition"><i class="fas fa-cart-plus"></i></button></form>
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endif %}
+
+<!-- Product Navigation (Prev/Next) -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+{% with prev_product=product.category.products.all|dictsort:"created_at"|first %}
+{% if prev_product and prev_product.id != product.id %}
+<a href="{% url 'store:product_detail' slug=prev_product.slug %}" class="product-nav-card bg-white rounded-xl shadow-lg p-4 flex items-center space-x-4 hover:shadow-xl">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+{% if prev_product.images.first %}<img src="{{ prev_product.images.first.image.url }}" alt="{{ prev_product.name }}" class="w-full h-full object-cover">{% else %}<div class="w-full h-full bg-amber-100 flex items-center justify-center"><i class="fas fa-wine-bottle text-amber-300"></i></div>{% endif %}
+</div>
+<div class="flex-1 min-w-0">
+<span class="text-xs text-gray-400"><i class="fas fa-arrow-left mr-1"></i> Previous Product</span>
+<h4 class="font-semibold text-gray-900 truncate">{{ prev_product.name }}</h4>
+<span class="text-scent-gold font-bold">₦{{ prev_product.price|floatformat:2 }}</span>
+</div>
+</a>
+{% else %}<div></div>{% endif %}
+{% endwith %}
+
+{% with next_product=product.category.products.all|dictsort:"created_at"|last %}
+{% if next_product and next_product.id != product.id %}
+<a href="{% url 'store:product_detail' slug=next_product.slug %}" class="product-nav-card bg-white rounded-xl shadow-lg p-4 flex items-center space-x-4 hover:shadow-xl text-right">
+<div class="flex-1 min-w-0">
+<span class="text-xs text-gray-400">Next Product <i class="fas fa-arrow-right ml-1"></i></span>
+<h4 class="font-semibold text-gray-900 truncate">{{ next_product.name }}</h4>
+<span class="text-scent-gold font-bold">₦{{ next_product.price|floatformat:2 }}</span>
+</div>
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+{% if next_product.images.first %}<img src="{{ next_product.images.first.image.url }}" alt="{{ next_product.name }}" class="w-full h-full object-cover">{% else %}<div class="w-full h-full bg-amber-100 flex items-center justify-center"><i class="fas fa-wine-bottle text-amber-300"></i></div>{% endif %}
+</div>
+</a>
+{% endif %}
+{% endwith %}
+</div>
+</div>
+</div>
+
+<!-- Sticky Add to Cart (Mobile) -->
+<div id="sticky-cart" class="sticky-cart bg-white border-t shadow-2xl p-4 lg:hidden">
+<div class="container mx-auto flex items-center justify-between">
+<div>
+<p class="font-semibold text-gray-900">{{ product.name|truncatechars:25 }}</p>
+<p class="text-lg font-bold text-scent-gold">₦{{ product.price|floatformat:2 }}</p>
+</div>
+<form action="{% url 'cart:add' product.id %}" method="post">
+{% csrf_token %}
+<input type="hidden" name="quantity" value="1">
+<button type="submit" class="bg-gray-900 text-white py-3 px-6 rounded-xl font-bold hover:bg-gray-800"><i class="fas fa-cart-plus mr-2"></i> Add to Cart</button>
+</form>
+</div>
+</div>
+
+<script>
+function changeImage(url) {document.getElementById('mainImage').src = url; document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active')); event.target.closest('.thumbnail').classList.add('active');}
+function decreaseQty() {var qty = document.getElementById('quantity'); if (parseInt(qty.value) > 1) qty.value = parseInt(qty.value) - 1;}
+function increaseQty() {var qty = document.getElementById('quantity'); var max = parseInt(qty.max); if (parseInt(qty.value) < max) qty.value = parseInt(qty.value) + 1;}
+function showTab(tab) {document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById('content-' + tab).classList.remove('hidden'); document.getElementById('tab-' + tab).classList.add('active');}
+function scrollRelated(dir) {var container = document.getElementById('related-container'); var scrollAmount = 300; if (dir === 'left') container.scrollBy({left: -scrollAmount, behavior: 'smooth'}); else container.scrollBy({left: scrollAmount, behavior: 'smooth'});}
+window.addEventListener('scroll', function() {var sticky = document.getElementById('sticky-cart'); var addToCartSection = document.getElementById('add-to-cart-form'); if (addToCartSection) {var rect = addToCartSection.getBoundingClientRect(); if (rect.bottom < 0) sticky.classList.add('show'); else sticky.classList.remove('show');}});
+</script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-card { transition: all 0.3s ease; }
+    .feedback-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .filter-btn.active { background-color: #D4AF37; color: white; }
+    .star { color: #FFD700; }
+    .star-empty { color: #E5E7EB; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Feedback Management</h1>
+                <p class="text-gray-500 text-sm mt-1">View and respond to customer feedback</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <a href="/admin/feedback/feedback/" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+                    <i class="fas fa-external-link-alt mr-2"></i> Django Admin
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <!-- Feedback Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Total Feedback</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ total_feedback }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-comments text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">New</p>
+                                <p class="text-2xl font-bold text-red-600">{{ new_count }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bell text-red-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Pending Response</p>
+                                <p class="text-2xl font-bold text-amber-600">{{ pending_response }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-amber-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Avg Rating</p>
+                                <p class="text-2xl font-bold text-green-600">{{ avg_rating|floatformat:1|default:"N/A" }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-star text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{% url 'dashboard:admin_feedback' %}" 
+                           class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if not status_filter %}active{% endif %}">
+                            All
+                        </a>
+                        <a href="{% url 'dashboard:admin_feedback' %}?status=new" 
+                           class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if status_filter == 'new' %}active{% endif %}">
+                            <i class="fas fa-bell mr-1"></i> New
+                        </a>
+                        <a href="{% url 'dashboard:admin_feedback' %}?status=read" 
+                           class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if status_filter == 'read' %}active{% endif %}">
+                            <i class="fas fa-eye mr-1"></i> Read
+                        </a>
+                        <a href="{% url 'dashboard:admin_feedback' %}?status=responded" 
+                           class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if status_filter == 'responded' %}active{% endif %}">
+                            <i class="fas fa-reply mr-1"></i> Responded
+                        </a>
+                        <a href="{% url 'dashboard:admin_feedback' %}?status=resolved" 
+                           class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if status_filter == 'resolved' %}active{% endif %}">
+                            <i class="fas fa-check mr-1"></i> Resolved
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Feedback List -->
+                {% if feedbacks %}
+                <div class="space-y-4">
+                    {% for feedback in feedbacks %}
+                    <div class="feedback-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden {% if feedback.status == 'new' %}border-l-4 border-l-red-500{% endif %}">
+                        <div class="p-6">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <!-- Feedback Info -->
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-3 mb-3">
+                                        <!-- Customer Avatar -->
+                                        <div class="w-10 h-10 bg-scent-blue rounded-full flex items-center justify-center flex-shrink-0">
+                                            <span class="text-sm font-bold text-amber-500">
+                                                {{ feedback.customer_name|first|upper|default:"A" }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-900">{{ feedback.customer_name|default:"Anonymous" }}</p>
+                                            <p class="text-xs text-gray-500">{{ feedback.customer_email|default:"No email" }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rating Stars -->
+                                    {% if feedback.rating %}
+                                    <div class="flex items-center space-x-1 mb-3">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= feedback.rating %}
+                                            <i class="fas fa-star star"></i>
+                                            {% else %}
+                                            <i class="fas fa-star star-empty"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="text-sm text-gray-500 ml-2">({{ feedback.rating }}/5)</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Feedback Type Badge -->
+                                    <div class="mb-3">
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                            {% if feedback.feedback_type == 'complaint' %}bg-red-100 text-red-700
+                                            {% elif feedback.feedback_type == 'suggestion' %}bg-purple-100 text-purple-700
+                                            {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                            {{ feedback.get_feedback_type_display }}
+                                        </span>
+                                        {% if feedback.order %}
+                                        <a href="{% url 'dashboard:admin_order_detail' feedback.order.id %}" class="ml-2 text-xs text-scent-gold hover:text-amber-600">
+                                            Order #{{ feedback.order.order_number }}
+                                        </a>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Subject -->
+                                    {% if feedback.subject %}
+                                    <h4 class="font-semibold text-gray-900 mb-2">{{ feedback.subject }}</h4>
+                                    {% endif %}
+
+                                    <!-- Message -->
+                                    <p class="text-gray-600 text-sm">{{ feedback.message }}</p>
+
+                                    <!-- Admin Response (if any) -->
+                                    {% if feedback.admin_response %}
+                                    <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-100">
+                                        <div class="flex items-center mb-2">
+                                            <i class="fas fa-reply text-green-600 mr-2"></i>
+                                            <span class="text-sm font-semibold text-green-800">Admin Response</span>
+                                        </div>
+                                        <p class="text-sm text-green-700">{{ feedback.admin_response }}</p>
+                                        <p class="text-xs text-green-600 mt-2">
+                                            Responded by {{ feedback.responded_by|default:"Admin" }} on {{ feedback.responded_at|date:"M d, Y g:i A" }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Status & Actions -->
+                                <div class="flex flex-col items-end space-y-3">
+                                    <!-- Status Badge -->
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                        {% if feedback.status == 'new' %}bg-red-100 text-red-700
+                                        {% elif feedback.status == 'read' %}bg-blue-100 text-blue-700
+                                        {% elif feedback.status == 'responded' %}bg-amber-100 text-amber-700
+                                        {% else %}bg-green-100 text-green-700{% endif %}">
+                                        {{ feedback.get_status_display }}
+                                    </span>
+
+                                    <!-- Date -->
+                                    <p class="text-xs text-gray-500">{{ feedback.created_at|date:"M d, Y" }}</p>
+                                    <p class="text-xs text-gray-400">{{ feedback.created_at|timesince }} ago</p>
+
+                                    <!-- Actions -->
+                                    <div class="flex space-x-2">
+                                        {% if feedback.status == 'new' %}
+                                        <form action="{% url 'dashboard:admin_feedback_status' feedback.id %}" method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="read">
+                                            <button type="submit" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-200 transition">
+                                                Mark Read
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <button onclick="openResponseModal({{ feedback.id }}, '{{ feedback.customer_name|escapejs }}')" 
+                                                class="px-3 py-1 bg-scent-gold text-white rounded-lg text-xs font-medium hover:bg-amber-600 transition">
+                                            <i class="fas fa-reply mr-1"></i> Respond
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if feedbacks.has_other_pages %}
+                <div class="mt-6 flex items-center justify-center space-x-2">
+                    {% if feedbacks.has_previous %}
+                    <a href="?page={{ feedbacks.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                       class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Previous</a>
+                    {% endif %}
+                    <span class="px-4 py-2 text-sm text-gray-500">
+                        Page {{ feedbacks.number }} of {{ feedbacks.paginator.num_pages }}
+                    </span>
+                    {% if feedbacks.has_next %}
+                    <a href="?page={{ feedbacks.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                       class="px-4 py-2 bg-scent-gold text-white rounded-lg text-sm hover:bg-amber-600">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 text-center py-16">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No Feedback Yet</h3>
+                    <p class="text-gray-500">{% if status_filter %}No {{ status_filter }} feedback at the moment.{% else %}Customer feedback will appear here.{% endif %}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Response Modal -->
+<div id="responseModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900">Respond to Feedback</h3>
+                <button onclick="closeResponseModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">Responding to: <span id="customerNameDisplay" class="font-medium text-gray-700"></span></p>
+        </div>
+        <form id="responseForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Your Response</label>
+                <textarea name="admin_response" rows="5" required placeholder="Type your response to the customer..."
+                          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"></textarea>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                    <select name="status" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                        <option value="responded">Responded</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-100 flex justify-end space-x-3">
+                <button type="button" onclick="closeResponseModal()" class="px-6 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-scent-gold text-white rounded-lg hover:bg-amber-600">
+                    Send Response
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openResponseModal(feedbackId, customerName) {
+    const modal = document.getElementById('responseModal');
+    const form = document.getElementById('responseForm');
+    const nameDisplay = document.getElementById('customerNameDisplay');
+    
+    form.action = `/dashboard/admin/feedback/${feedbackId}/respond/`;
+    nameDisplay.textContent = customerName || 'Customer';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeResponseModal() {
+    const modal = document.getElementById('responseModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+document.getElementById('responseModal').addEventListener('click', function(e) {
+    if (e.target === this) closeResponseModal();
+});
+</script>
+{% endblock %}

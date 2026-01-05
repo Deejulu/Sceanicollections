@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .customer-card { transition: all 0.3s ease; }
+    .customer-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Customer Management</h1>
+                <p class="text-gray-500 text-sm mt-1">View and manage your customers</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <a href="/admin/accounts/user/add/" class="inline-flex items-center px-4 py-2 bg-scent-gold text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition">
+                    <i class="fas fa-user-plus mr-2"></i> Add Customer
+                </a>
+                <button onclick="exportCustomers()" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+                    <i class="fas fa-download mr-2"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <!-- Customer Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Total Customers</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ total_customers }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Active Today</p>
+                                <p class="text-2xl font-bold text-green-600">{{ active_today }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-check text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">New This Month</p>
+                                <p class="text-2xl font-bold text-purple-600">{{ new_this_month }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-plus text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">With Orders</p>
+                                <p class="text-2xl font-bold text-amber-600">{{ customers_with_orders }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-amber-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters & Search -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Search -->
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text" id="customerSearch" placeholder="Search by name, email or phone..." 
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <!-- Sort Options -->
+                        <select id="sortSelect" onchange="window.location.href=this.value" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                            <option value="{% url 'dashboard:admin_customers' %}?sort=newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            <option value="{% url 'dashboard:admin_customers' %}?sort=oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                            <option value="{% url 'dashboard:admin_customers' %}?sort=name" {% if sort == 'name' %}selected{% endif %}>By Name</option>
+                            <option value="{% url 'dashboard:admin_customers' %}?sort=orders" {% if sort == 'orders' %}selected{% endif %}>Most Orders</option>
+                            <option value="{% url 'dashboard:admin_customers' %}?sort=spent" {% if sort == 'spent' %}selected{% endif %}>Highest Spent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Customers Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    {% if customers %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                                    <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Orders</th>
+                                    <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Spent</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {% for customer in customers %}
+                                <tr class="customer-row hover:bg-gray-50" 
+                                    data-search="{{ customer.first_name|lower }} {{ customer.last_name|lower }} {{ customer.email|lower }} {{ customer.phone|default:''|lower }}">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-scent-blue rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                                {% if customer.profile_image %}
+                                                <img src="{{ customer.profile_image.url }}" alt="{{ customer.email }}" class="w-full h-full rounded-full object-cover">
+                                                {% else %}
+                                                <span class="text-sm font-bold text-amber-500">{{ customer.first_name|first|upper|default:"C" }}{{ customer.last_name|first|upper }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">{{ customer.get_full_name|default:"No Name" }}</p>
+                                                <p class="text-xs text-gray-500">ID: #{{ customer.id }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="text-sm text-gray-900">{{ customer.email }}</p>
+                                        <p class="text-xs text-gray-500">{{ customer.phone|default:"No phone" }}</p>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                            {{ customer.orders.count }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-sm font-bold text-green-600">₦{{ customer.total_spent|floatformat:0|default:0 }}</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="text-sm text-gray-600">{{ customer.date_joined|date:"M d, Y" }}</p>
+                                        <p class="text-xs text-gray-400">{{ customer.date_joined|timesince }} ago</p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {% if customer.is_active %}
+                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Active</span>
+                                        {% else %}
+                                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <a href="{% url 'dashboard:admin_customer_detail' customer.id %}" 
+                                               class="p-2 text-gray-400 hover:text-scent-gold transition" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/admin/accounts/user/{{ customer.id }}/change/" 
+                                               class="p-2 text-gray-400 hover:text-blue-600 transition" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="mailto:{{ customer.email }}" 
+                                               class="p-2 text-gray-400 hover:text-green-600 transition" title="Email">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if customers.has_other_pages %}
+                    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                        <p class="text-sm text-gray-500">
+                            Showing {{ customers.start_index }} to {{ customers.end_index }} of {{ customers.paginator.count }} customers
+                        </p>
+                        <div class="flex space-x-2">
+                            {% if customers.has_previous %}
+                            <a href="?page={{ customers.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" 
+                               class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Previous</a>
+                            {% endif %}
+                            {% if customers.has_next %}
+                            <a href="?page={{ customers.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}" 
+                               class="px-4 py-2 bg-scent-gold text-white rounded-lg text-sm hover:bg-amber-600">Next</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-16">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No Customers Yet</h3>
+                        <p class="text-gray-500 mb-6">Customers will appear here once they register.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('customerSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    document.querySelectorAll('.customer-row').forEach(row => {
+        const searchData = row.dataset.search;
+        row.style.display = searchData.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+function exportCustomers() {
+    alert('Export functionality coming soon!');
+}
+</script>
+{% endblock %}

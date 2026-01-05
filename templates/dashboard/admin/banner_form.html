@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="mb-6">
+            <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                <a href="{% url 'dashboard:admin_site_content' %}" class="hover:text-scent-gold transition">Content</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <a href="{% url 'dashboard:admin_banners' %}" class="hover:text-scent-gold transition">Banners</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-gray-700">{% if banner %}Edit{% else %}Add{% endif %}</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ title }}</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <form action="{% if banner %}{% url 'dashboard:admin_banner_edit' banner.id %}{% else %}{% url 'dashboard:admin_banner_add' %}{% endif %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Banner Information</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Banner Name *</label>
+                                    <input type="text" name="name" value="{{ banner.name|default:'' }}" required
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="e.g., Summer Sale Banner">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Position *</label>
+                                    <select name="position" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                                        {% for value, label in position_choices %}
+                                        <option value="{{ value }}" {% if banner.position == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Main Text</label>
+                                <input type="text" name="text" value="{{ banner.text|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                       placeholder="e.g., 50% OFF All Perfumes!">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subtext</label>
+                                <input type="text" name="subtext" value="{{ banner.subtext|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                       placeholder="e.g., Limited time offer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colors -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Colors</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="color" name="background_color" value="{{ banner.background_color|default:'#D4AF37' }}"
+                                               class="w-12 h-12 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" value="{{ banner.background_color|default:'#D4AF37' }}" readonly
+                                               class="flex-1 px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="color" name="text_color" value="{{ banner.text_color|default:'#1a1a2e' }}"
+                                               class="w-12 h-12 rounded-lg border border-gray-200 cursor-pointer">
+                                        <input type="text" value="{{ banner.text_color|default:'#1a1a2e' }}" readonly
+                                               class="flex-1 px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image & Link -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Image & Link</h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            {% if banner.image %}
+                            <div class="mb-3">
+                                <img src="{{ banner.image.url }}" alt="Banner" class="h-24 object-cover rounded-lg">
+                                <p class="text-xs text-gray-500 mt-1">Current image</p>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
+                                <input type="file" name="image" accept="image/*"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-scent-gold/10 file:text-scent-gold">
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Link URL</label>
+                                    <input type="text" name="link_url" value="{{ banner.link_url|default:'' }}"
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="/shop/">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Link Text</label>
+                                    <input type="text" name="link_text" value="{{ banner.link_text|default:'' }}"
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="Shop Now">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Schedule (Optional)</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                                    <input type="datetime-local" name="start_date" value="{{ banner.start_date|date:'Y-m-d\TH:i'|default:'' }}"
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                                    <input type="datetime-local" name="end_date" value="{{ banner.end_date|date:'Y-m-d\TH:i'|default:'' }}"
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_active" {% if banner.is_active or not banner %}checked{% endif %}
+                                       class="w-5 h-5 text-scent-gold border-gray-300 rounded focus:ring-scent-gold">
+                                <span class="ml-2 text-sm text-gray-700">Active</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                        <a href="{% url 'dashboard:admin_banners' %}" class="px-6 py-3 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition text-center">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-3 bg-scent-gold text-white rounded-lg font-medium hover:bg-amber-600 transition">
+                            <i class="fas fa-save mr-2"></i>{% if banner %}Update{% else %}Create{% endif %} Banner
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

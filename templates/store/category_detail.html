@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Category Header -->
+    <div class="bg-gradient-to-r from-gray-900 to-amber-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ category.name }}</h1>
+                <p class="text-amber-100 text-lg max-w-2xl mx-auto">
+                    {{ category.description|default:"Discover our exquisite collection of "|add:category.name|add:"." }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- Category Content -->
+    <div class="container mx-auto px-4 py-8">
+        {% if products %}
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
+                <a href="{% url 'store:product_detail' slug=product.slug %}">
+                    <div class="h-64 bg-gray-100 overflow-hidden">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}"
+                            class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-wine-bottle text-gray-300 text-4xl"></i>
+                        </div>
+                        {% endif %}
+                        <!-- Badges -->
+                        <div class="absolute top-3 left-3 space-y-1">
+                            {% if product.is_new %}
+                            <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">NEW</span>
+                            {% endif %}
+                            {% if product.is_bestseller %}
+                            <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">BESTSELLER</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                <div class="p-4">
+                    <a href="{% url 'store:product_detail' slug=product.slug %}" class="block">
+                        <h3 class="font-semibold text-gray-900 hover:text-scent-gold mb-2">{{ product.name }}</h3>
+                    </a>
+                    <!-- Scent Notes Preview -->
+                    {% if product.top_notes %}
+                    <p class="text-xs text-gray-500 mb-3 line-clamp-1">
+                        <i class="fas fa-wind mr-1"></i>
+                        {{ product.top_notes|truncatechars:40 }}
+                    </p>
+                    {% endif %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-bold text-scent-gold">₦{{ product.price|floatformat:2 }}</span>
+                        <form action="{% url 'cart:add' product.id %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="bg-scent-gold text-white p-2 rounded-lg hover:bg-amber-600">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if products.has_previous %}
+                <a href="?page={{ products.previous_page_number }}"
+                    class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                <span class="px-4 py-2 rounded-lg bg-scent-gold text-white font-medium">
+                    {{ num }}
+                </span>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %} <a href="?page={{ num }}"
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                    {{ num }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}"
+                        class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+            <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
+                <i class="fas fa-box-open text-amber-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">No Products Available</h3>
+            <p class="text-gray-600 mb-6">There are no products in this category yet. Check back soon!</p>
+            <a href="{% url 'store:product_list' %}"
+                class="inline-flex items-center bg-scent-gold text-white px-6 py-3 rounded-lg hover:bg-amber-600">
+                <i class="fas fa-store mr-2"></i> Browse All Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar-link {
+        transition: all 0.2s ease;
+    }
+    .sidebar-link:hover {
+        transform: translateX(4px);
+    }
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Admin Header -->
+    <div class="bg-gradient-to-r from-gray-900 to-black text-white">
+        <div class="container mx-auto px-4 py-4 md:py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold">{{ title }}</h1>
+                    <p class="text-gray-400 text-sm hidden md:block">SceaniCollections Admin Panel</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'home' %}" class="text-gray-300 hover:text-white transition" title="View Store">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a href="/admin/" class="hidden md:inline-flex items-center bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-cog mr-2"></i> Django Admin
+                    </a>
+                    <div class="w-10 h-10 rounded-full bg-scent-gold flex items-center justify-center border-2 border-amber-400/50">
+                        <span class="text-sm font-bold text-gray-900">{{ request.user.first_name|first|upper|default:"A" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Sidebar -->
+            <aside class="w-full lg:w-72 flex-shrink-0">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 min-w-0">
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="px-4 py-3 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block admin_content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block admin_extra_js %}{% endblock %}
+{% endblock %}

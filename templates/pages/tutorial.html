@@ -1,0 +1,874 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}How to Shop - Tutorial Guide | SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tutorial-section {
+        scroll-margin-top: 100px;
+    }
+    
+    .step-card {
+        transition: all 0.3s ease;
+    }
+    
+    .step-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .nav-pill {
+        transition: all 0.3s ease;
+    }
+    
+    .nav-pill:hover, .nav-pill.active {
+        background: #D4AF37;
+        color: white;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Progress indicator */
+    .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #1a237e, #D4AF37);
+        z-index: 9999;
+        transition: width 0.1s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar" style="width: 0%"></div>
+
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-scent-blue via-indigo-900 to-scent-blue dark:from-dark-bg dark:via-gray-900 dark:to-dark-bg py-12 md:py-20">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                <i class="fas fa-graduation-cap text-amber-400"></i>
+                <span class="text-white/90 text-sm font-medium">Customer Guide</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-heading font-bold text-white mb-4">
+                How to Shop at <span class="text-amber-400">SceaniCollections</span>
+            </h1>
+            <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                Your complete guide to finding the perfect fragrance. Follow these simple steps to browse, shop, and enjoy our luxury perfumes.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#getting-started" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-scent-blue font-semibold px-6 py-3 rounded-lg transition">
+                    <i class="fas fa-play"></i> Start Tutorial
+                </a>
+                <a href="{% url 'store:product_list' %}" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-3 rounded-lg transition backdrop-blur-sm">
+                    <i class="fas fa-shopping-bag"></i> Start Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Navigation -->
+<section class="sticky top-0 z-40 bg-white dark:bg-dark-card shadow-md">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide">
+            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap mr-2">Jump to:</span>
+            <a href="#getting-started" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Getting Started</a>
+            <a href="#browsing" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Browsing Products</a>
+            <a href="#account" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Your Account</a>
+            <a href="#cart" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Cart & Wishlist</a>
+            <a href="#checkout" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Checkout</a>
+            <a href="#orders" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Track Orders</a>
+            <a href="#reviews" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Reviews</a>
+            <a href="#support" class="nav-pill px-4 py-2 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">Support</a>
+        </div>
+    </div>
+</section>
+
+<div class="bg-gray-50 dark:bg-dark-bg py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto space-y-16">
+            
+            <!-- Section 1: Getting Started -->
+            <section id="getting-started" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-rocket text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Getting Started</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Your first steps to luxury fragrances</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-scent-blue text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Visit Our Homepage</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Start at <a href="{% url 'home' %}" class="text-amber-600 hover:underline font-medium">our homepage</a> to see featured products, new arrivals, and special offers. The homepage showcases our best fragrances.
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
+                                        <i class="fas fa-star"></i> Featured Products
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-1 rounded-full">
+                                        <i class="fas fa-sparkles"></i> New Arrivals
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-scent-blue text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Use Dark/Light Mode</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Click the <i class="fas fa-sun text-amber-500"></i> / <i class="fas fa-moon text-indigo-500"></i> icon in the top navigation to switch between light and dark modes for comfortable browsing.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-scent-blue text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Navigate the Menu</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Use the navigation bar at the top to access different sections:
+                                </p>
+                                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-home text-amber-500 w-5"></i>
+                                        <strong>Home</strong> - Back to the main page
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-store text-amber-500 w-5"></i>
+                                        <strong>Shop</strong> - Browse all products
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-tags text-amber-500 w-5"></i>
+                                        <strong>Categories</strong> - Shop by perfume type
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-info-circle text-amber-500 w-5"></i>
+                                        <strong>About</strong> - Learn about us
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-envelope text-amber-500 w-5"></i>
+                                        <strong>Contact</strong> - Get in touch
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 2: Browsing Products -->
+            <section id="browsing" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                        <i class="fas fa-search text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Browsing Products</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Find your perfect fragrance</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-purple-600 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Search for Products</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Click the <i class="fas fa-search"></i> search icon in the navigation bar to search for specific perfumes by name, brand, or scent notes.
+                                </p>
+                                <a href="{% url 'store:search' %}" class="inline-flex items-center gap-2 text-sm text-amber-600 hover:text-amber-700 font-medium">
+                                    <i class="fas fa-external-link-alt"></i> Try Search Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-purple-600 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Browse by Category</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Visit <a href="{% url 'store:category_list' %}" class="text-amber-600 hover:underline font-medium">Categories</a> to browse by perfume type:
+                                </p>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-venus text-pink-500 w-5"></i> Women's Perfumes
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-mars text-blue-500 w-5"></i> Men's Colognes
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-venus-mars text-purple-500 w-5"></i> Unisex Fragrances
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-gift text-amber-500 w-5"></i> Gift Sets
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-purple-600 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Filter & Sort Products</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    On the shop page, use filters to narrow down your search:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i> Filter by price range</li>
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i> Filter by brand</li>
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i> Sort by price (low to high / high to low)</li>
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i> Sort by newest arrivals</li>
+                                    <li><i class="fas fa-check text-green-500 mr-2"></i> Sort by popularity</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-purple-600 text-white">4</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">View Product Details</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Click on any product to see detailed information including:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-image text-amber-500 mr-2"></i> High-quality product images</li>
+                                    <li><i class="fas fa-info text-amber-500 mr-2"></i> Full description & scent notes</li>
+                                    <li><i class="fas fa-ruler text-amber-500 mr-2"></i> Available sizes</li>
+                                    <li><i class="fas fa-tag text-amber-500 mr-2"></i> Pricing & discounts</li>
+                                    <li><i class="fas fa-star text-amber-500 mr-2"></i> Customer reviews & ratings</li>
+                                    <li><i class="fas fa-box text-amber-500 mr-2"></i> Stock availability</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 3: Your Account -->
+            <section id="account" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                        <i class="fas fa-user text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Your Account</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Manage your profile and preferences</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-green-600 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Create an Account</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Click <a href="{% url 'accounts:register' %}" class="text-amber-600 hover:underline font-medium">Sign Up</a> to create a free account. You'll need:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-envelope text-gray-400 mr-2"></i> Valid email address</li>
+                                    <li><i class="fas fa-user text-gray-400 mr-2"></i> Your full name</li>
+                                    <li><i class="fas fa-lock text-gray-400 mr-2"></i> Secure password (8+ characters)</li>
+                                </ul>
+                                <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                    <p class="text-xs text-blue-700 dark:text-blue-300">
+                                        <i class="fas fa-info-circle mr-1"></i> Benefits: Save addresses, track orders, write reviews, and get personalized recommendations!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-green-600 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Log In to Your Account</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Already have an account? Click <a href="{% url 'accounts:login' %}" class="text-amber-600 hover:underline font-medium">Log In</a> and enter your email and password.
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-lightbulb text-amber-500 mr-1"></i> Tip: Use "Remember Me" to stay logged in on your device.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-green-600 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Access Your Dashboard</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Once logged in, click your name or the user icon to access your dashboard where you can:
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-user-edit text-green-500 w-5"></i> Edit your profile
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-map-marker-alt text-green-500 w-5"></i> Manage addresses
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-box text-green-500 w-5"></i> View order history
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-heart text-green-500 w-5"></i> See your wishlist
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-key text-green-500 w-5"></i> Change password
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-bell text-green-500 w-5"></i> Notification settings
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-green-600 text-white">4</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Forgot Your Password?</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    No worries! Click <a href="{% url 'accounts:password_reset' %}" class="text-amber-600 hover:underline font-medium">Forgot Password</a> on the login page. Enter your email and we'll send you a reset link.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 4: Cart & Wishlist -->
+            <section id="cart" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
+                        <i class="fas fa-shopping-cart text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Cart & Wishlist</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Save and buy your favorite items</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-amber-500 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Add Items to Cart</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    On any product page, select your preferred size and click <strong>"Add to Cart"</strong>. You'll see a confirmation and the cart icon will update with the item count.
+                                </p>
+                                <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                    <p class="text-xs text-green-700 dark:text-green-300">
+                                        <i class="fas fa-check-circle mr-1"></i> You can add multiple items and adjust quantities later!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-amber-500 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">View Your Cart</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Click the <i class="fas fa-shopping-cart text-amber-500"></i> cart icon in the navigation or visit <a href="{% url 'cart:detail' %}" class="text-amber-600 hover:underline font-medium">your cart</a> to:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-eye text-amber-500 mr-2"></i> See all items you've added</li>
+                                    <li><i class="fas fa-plus-minus text-amber-500 mr-2"></i> Update quantities</li>
+                                    <li><i class="fas fa-trash text-amber-500 mr-2"></i> Remove items you don't want</li>
+                                    <li><i class="fas fa-calculator text-amber-500 mr-2"></i> View subtotal and estimated total</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-amber-500 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Save to Wishlist</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Not ready to buy? Click the <i class="fas fa-heart text-red-500"></i> heart icon on any product to save it to your wishlist. Access your wishlist anytime from your dashboard.
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-lightbulb text-amber-500 mr-1"></i> Tip: Create an account to keep your wishlist saved across devices!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 5: Checkout -->
+            <section id="checkout" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                        <i class="fas fa-credit-card text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Checkout Process</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Complete your purchase securely</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-indigo-600 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Go to Checkout</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    From your cart, click the <strong>"Proceed to Checkout"</strong> button to start the checkout process.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-indigo-600 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Enter Shipping Information</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Fill in your delivery details:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-user text-indigo-500 mr-2"></i> Full name</li>
+                                    <li><i class="fas fa-envelope text-indigo-500 mr-2"></i> Email address</li>
+                                    <li><i class="fas fa-phone text-indigo-500 mr-2"></i> Phone number</li>
+                                    <li><i class="fas fa-home text-indigo-500 mr-2"></i> Street address</li>
+                                    <li><i class="fas fa-city text-indigo-500 mr-2"></i> City, State, and Country</li>
+                                </ul>
+                                <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                    <p class="text-xs text-blue-700 dark:text-blue-300">
+                                        <i class="fas fa-info-circle mr-1"></i> Logged in? Your saved addresses will appear for quick selection!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-indigo-600 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Choose Shipping Method</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Select your preferred delivery option:
+                                </p>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <i class="fas fa-truck text-blue-500 mt-0.5"></i>
+                                        <div>
+                                            <strong class="text-gray-900 dark:text-white">Standard Delivery</strong>
+                                            <p class="text-gray-500 dark:text-gray-400">3-5 business days nationwide (₦2,500)</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <i class="fas fa-shipping-fast text-green-500 mt-0.5"></i>
+                                        <div>
+                                            <strong class="text-gray-900 dark:text-white">Express Delivery</strong>
+                                            <p class="text-gray-500 dark:text-gray-400">2 days for Lagos, Benin, Warri (₦5,000)</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <i class="fas fa-store text-purple-500 mt-0.5"></i>
+                                        <div>
+                                            <strong class="text-gray-900 dark:text-white">Store Pickup</strong>
+                                            <p class="text-gray-500 dark:text-gray-400">Pick up from our store (FREE)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-indigo-600 text-white">4</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Make Payment</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    We use <strong>Paystack</strong> for secure payments. After clicking "Place Order", you'll be redirected to Paystack where you can pay using:
+                                </p>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                        <i class="fab fa-cc-visa text-blue-600"></i> Visa Card
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                        <i class="fab fa-cc-mastercard text-red-500"></i> Mastercard
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                        <i class="fas fa-university text-green-600"></i> Bank Transfer
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                        <i class="fas fa-mobile-alt text-purple-600"></i> USSD
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                        <i class="fas fa-wallet text-amber-600"></i> Bank App
+                                    </div>
+                                </div>
+                                <div class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                    <p class="text-xs text-green-700 dark:text-green-300">
+                                        <i class="fas fa-shield-alt mr-1"></i> Your payment is 100% secure and encrypted. We never store your card details.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-indigo-600 text-white">5</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Order Confirmation</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    After successful payment, you'll see an order confirmation page with:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-hashtag text-indigo-500 mr-2"></i> Your unique order number</li>
+                                    <li><i class="fas fa-list text-indigo-500 mr-2"></i> Order summary</li>
+                                    <li><i class="fas fa-envelope text-indigo-500 mr-2"></i> Confirmation email sent to you</li>
+                                    <li><i class="fas fa-calendar text-indigo-500 mr-2"></i> Estimated delivery date</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 6: Track Orders -->
+            <section id="orders" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400">
+                        <i class="fas fa-truck-loading text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Track Your Orders</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Stay updated on your delivery</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-cyan-600 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">View Order History</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Log in and go to your <strong>Dashboard → Orders</strong> to see all your past and current orders with their status.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-cyan-600 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Understand Order Statuses</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Your order will go through these stages:
+                                </p>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium">Pending</span>
+                                        <span class="text-gray-600 dark:text-gray-400">Order received, awaiting payment</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Confirmed</span>
+                                        <span class="text-gray-600 dark:text-gray-400">Payment confirmed</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Processing</span>
+                                        <span class="text-gray-600 dark:text-gray-400">We're preparing your order</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">Shipped</span>
+                                        <span class="text-gray-600 dark:text-gray-400">On the way to you!</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Delivered</span>
+                                        <span class="text-gray-600 dark:text-gray-400">Successfully delivered</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-cyan-600 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Track Shipment</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Once shipped, you'll receive a tracking number via email. Click on your order to see tracking details and estimated delivery time.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 7: Reviews -->
+            <section id="reviews" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
+                        <i class="fas fa-star text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Write Reviews</h2>
+                        <p class="text-gray-500 dark:text-gray-400">Share your experience with others</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-yellow-500 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Leave a Product Review</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    After receiving your order, visit the product page and scroll down to the reviews section. Click <strong>"Write a Review"</strong> to share your thoughts.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-yellow-500 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Rate the Product</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Give a star rating from 1 to 5 stars:
+                                </p>
+                                <div class="flex items-center gap-1 text-2xl mb-2">
+                                    <i class="fas fa-star text-amber-400"></i>
+                                    <i class="fas fa-star text-amber-400"></i>
+                                    <i class="fas fa-star text-amber-400"></i>
+                                    <i class="fas fa-star text-amber-400"></i>
+                                    <i class="fas fa-star text-amber-400"></i>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Click on the stars to set your rating</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-yellow-500 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Write Your Review</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Share details about:
+                                </p>
+                                <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li><i class="fas fa-nose text-yellow-500 mr-2"></i> How it smells (scent notes)</li>
+                                    <li><i class="fas fa-clock text-yellow-500 mr-2"></i> How long it lasts</li>
+                                    <li><i class="fas fa-spray-can text-yellow-500 mr-2"></i> Projection and sillage</li>
+                                    <li><i class="fas fa-thumbs-up text-yellow-500 mr-2"></i> Who you'd recommend it for</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 8: Support -->
+            <section id="support" class="tutorial-section">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="feature-icon bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                        <i class="fas fa-headset text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white">Get Help & Support</h2>
+                        <p class="text-gray-500 dark:text-gray-400">We're here to help you</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-red-500 text-white">1</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Check Our FAQ</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Most questions are answered in our <a href="{% url 'faq' %}" class="text-amber-600 hover:underline font-medium">FAQ page</a>. Find answers about orders, shipping, returns, and more.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-red-500 text-white">2</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Contact Us</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Need more help? Reach out to us:
+                                </p>
+                                <div class="space-y-2 text-sm">
+                                    <a href="{% url 'contact' %}" class="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-amber-600">
+                                        <i class="fas fa-envelope text-red-500 w-5"></i>
+                                        Contact Form
+                                    </a>
+                                    <div class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                                        <i class="fab fa-whatsapp text-green-500 w-5"></i>
+                                        WhatsApp Support
+                                    </div>
+                                    <div class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-phone text-blue-500 w-5"></i>
+                                        Phone Support
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-red-500 text-white">3</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Submit Feedback</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Help us improve! Visit our <a href="{% url 'feedback:feedback_form' %}" class="text-amber-600 hover:underline font-medium">feedback page</a> to share your suggestions or report any issues.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="flex gap-4">
+                            <div class="step-number bg-red-500 text-white">4</div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Returns & Refunds</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-3">
+                                    Not satisfied with your purchase? Check our <a href="{% url 'returns' %}" class="text-amber-600 hover:underline font-medium">returns policy</a> for information on how to request a return or exchange.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Quick Reference Card -->
+            <section class="bg-gradient-to-br from-scent-blue to-indigo-900 rounded-2xl p-8 text-white">
+                <h2 class="text-2xl font-heading font-bold mb-6 text-center">Quick Reference</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="{% url 'store:product_list' %}" class="flex flex-col items-center gap-2 p-4 bg-white/10 rounded-xl hover:bg-white/20 transition">
+                        <i class="fas fa-shopping-bag text-2xl text-amber-400"></i>
+                        <span class="text-sm font-medium">Shop Now</span>
+                    </a>
+                    <a href="{% url 'cart:detail' %}" class="flex flex-col items-center gap-2 p-4 bg-white/10 rounded-xl hover:bg-white/20 transition">
+                        <i class="fas fa-shopping-cart text-2xl text-amber-400"></i>
+                        <span class="text-sm font-medium">View Cart</span>
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="flex flex-col items-center gap-2 p-4 bg-white/10 rounded-xl hover:bg-white/20 transition">
+                        <i class="fas fa-user text-2xl text-amber-400"></i>
+                        <span class="text-sm font-medium">My Account</span>
+                    </a>
+                    <a href="{% url 'contact' %}" class="flex flex-col items-center gap-2 p-4 bg-white/10 rounded-xl hover:bg-white/20 transition">
+                        <i class="fas fa-headset text-2xl text-amber-400"></i>
+                        <span class="text-sm font-medium">Get Help</span>
+                    </a>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Progress bar on scroll
+    window.addEventListener('scroll', function() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('progressBar').style.width = scrolled + '%';
+    });
+    
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+    
+    // Active navigation pill on scroll
+    const sections = document.querySelectorAll('.tutorial-section');
+    const navPills = document.querySelectorAll('.nav-pill');
+    
+    window.addEventListener('scroll', function() {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (scrollY >= sectionTop - 150) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navPills.forEach(pill => {
+            pill.classList.remove('active');
+            if (pill.getAttribute('href') === '#' + current) {
+                pill.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

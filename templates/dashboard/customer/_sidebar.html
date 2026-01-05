@@ -1,0 +1,50 @@
+<!-- Customer Dashboard Sidebar Partial -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="flex items-center mb-6">
+        <div
+            class="w-16 h-16 rounded-full bg-scent-blue flex items-center justify-center border-2 border-amber-500/30">
+            {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.email }}"
+                class="w-full h-full rounded-full object-cover">{% else %}<span class="text-2xl font-bold text-amber-500">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>{% endif %}
+        </div>
+        <div class="ml-4">
+            <h3 class="font-semibold text-gray-900">{{ user.get_full_name|default:user.email }}</h3>
+            <p class="text-xs text-gray-400">Member since {{ user.date_joined|date:"M Y" }}</p>
+        </div>
+    </div>
+    <nav class="space-y-1">
+        <a href="{% url 'dashboard:customer_dashboard' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'overview' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-tachometer-alt mr-3 {% if dashboard_active == 'overview' %}text-amber-500{% endif %} w-5"></i> Dashboard Overview
+        </a>
+        <a href="{% url 'dashboard:customer_orders' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'orders' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-shopping-bag mr-3 {% if dashboard_active == 'orders' %}text-amber-500{% endif %} w-5"></i> My Orders
+            {% if pending_orders_count and pending_orders_count > 0 %}<span
+                class="ml-auto bg-amber-500 text-scent-blue text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{
+                pending_orders_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'dashboard:customer_wishlist' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'wishlist' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-heart mr-3 {% if dashboard_active == 'wishlist' %}text-amber-500{% endif %} w-5"></i> My Wishlist
+            {% if user.wishlist %}<span class="ml-auto bg-gray-100 text-gray-600 text-xs font-medium rounded-full px-2 py-1">{{ user.wishlist.products.count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'dashboard:customer_profile' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'profile' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-user mr-3 {% if dashboard_active == 'profile' %}text-amber-500{% endif %} w-5"></i> Profile Settings
+        </a>
+        <a href="{% url 'dashboard:customer_addresses' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'addresses' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-map-marker-alt mr-3 {% if dashboard_active == 'addresses' %}text-amber-500{% endif %} w-5"></i> My Addresses
+        </a>
+        <a href="{% url 'feedback:feedback_form' %}"
+            class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'feedback' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+            <i class="fas fa-comment-dots mr-3 {% if dashboard_active == 'feedback' %}text-amber-500{% endif %} w-5"></i> Send Feedback
+        </a>
+        <div class="pt-4 mt-4 border-t border-gray-100">
+            <a href="{% url 'accounts:logout' %}"
+                class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition">
+                <i class="fas fa-sign-out-alt mr-3 w-5"></i> Logout
+            </a>
+        </div>
+    </nav>
+</div>

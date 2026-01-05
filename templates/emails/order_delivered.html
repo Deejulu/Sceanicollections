@@ -1,0 +1,38 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Your Order Has Been Delivered! - #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<h2 style="color: #1a237e; margin-bottom: 20px;">Your Order Has Arrived! 🎉</h2>
+
+<p>Hi {{ user_name }},</p>
+
+<p>Your order <strong>#{{ order.order_number }}</strong> has been delivered! We hope you love your new fragrances.</p>
+
+<div class="highlight-box">
+    <p style="margin: 0;"><strong>Order Number:</strong> #{{ order.order_number }}</p>
+    <p style="margin: 5px 0 0;"><strong>Delivered On:</strong> {{ order.delivered_at|date:"F d, Y" }}</p>
+</div>
+
+<h3 style="color: #1a237e; margin-top: 30px;">We'd Love Your Feedback!</h3>
+
+<p>Your opinion matters to us! Help other fragrance lovers by sharing your experience.</p>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/store/" class="btn">Write a Review</a>
+</p>
+
+<div style="background-color: #f8f5e6; padding: 20px; border-radius: 8px; margin: 30px 0;">
+    <p style="margin: 0; text-align: center;">
+        <strong>💝 Enjoying your purchase?</strong><br>
+        <span style="font-size: 14px;">Share the love! Refer a friend and get 15% off your next order.</span>
+    </p>
+</div>
+
+<p>If there's anything wrong with your order, please contact us within 30 days for a hassle-free return or exchange.</p>
+
+<p style="margin-top: 30px;">
+    Thank you for choosing {{ site_name }}!<br>
+    <strong>The {{ site_name }} Team</strong>
+</p>
+{% endblock %}

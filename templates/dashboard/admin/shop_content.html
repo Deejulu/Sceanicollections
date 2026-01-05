@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                    <a href="{% url 'dashboard:admin_site_content' %}" class="hover:text-scent-gold transition">Content</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-700">Shop Page</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Shop Page Content</h1>
+                <p class="text-gray-500 text-sm mt-1">Customize the shop page appearance and labels</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="/shop/" target="_blank" class="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                    <i class="fas fa-external-link-alt mr-2"></i>
+                    View Shop Page
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <form action="{% url 'dashboard:admin_shop_content' %}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Page Header Section -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Page Header</h2>
+                            <p class="text-sm text-gray-500">Main title and description shown at the top of the shop page</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Page Title</label>
+                                <input type="text" name="page_title" value="{{ shop_content.page_title }}" 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                       placeholder="Our Collection">
+                                <p class="text-xs text-gray-400 mt-1">The main heading shown at the top of the shop page</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Page Subtitle</label>
+                                <textarea name="page_subtitle" rows="2"
+                                          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                          placeholder="Explore our curated selection of luxury perfumes">{{ shop_content.page_subtitle }}</textarea>
+                                <p class="text-xs text-gray-400 mt-1">A short description displayed below the title</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Header Image</label>
+                                {% if shop_content.header_image %}
+                                <div class="mb-3">
+                                    <img src="{{ shop_content.header_image.url }}" alt="Current header" class="h-32 object-cover rounded-lg">
+                                    <p class="text-xs text-gray-500 mt-1">Current image</p>
+                                </div>
+                                {% endif %}
+                                <input type="file" name="header_image" accept="image/*"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-scent-gold/10 file:text-scent-gold hover:file:bg-scent-gold/20">
+                                <p class="text-xs text-gray-400 mt-1">Optional header/banner image for the shop page</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Labels Section -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Filter Labels</h2>
+                            <p class="text-sm text-gray-500">Customize the labels for product filters and sorting</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category Filter</label>
+                                    <input type="text" name="category_filter_label" value="{{ shop_content.category_filter_label }}" 
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="Categories">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Price Filter</label>
+                                    <input type="text" name="price_filter_label" value="{{ shop_content.price_filter_label }}" 
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="Price Range">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Sort Label</label>
+                                    <input type="text" name="sort_label" value="{{ shop_content.sort_label }}" 
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                           placeholder="Sort By">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State Section -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Empty State</h2>
+                            <p class="text-sm text-gray-500">Content shown when no products match the filters</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Empty State Title</label>
+                                <input type="text" name="empty_title" value="{{ shop_content.empty_title }}" 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                       placeholder="No products found">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Empty State Message</label>
+                                <textarea name="empty_message" rows="2"
+                                          class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold"
+                                          placeholder="Check back later for new arrivals.">{{ shop_content.empty_message }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900">Preview</h2>
+                            <p class="text-sm text-gray-500">How the shop page header will look</p>
+                        </div>
+                        <div class="p-6 bg-gray-50">
+                            <div class="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                                <h2 class="text-2xl font-bold text-gray-900 preview-title">{{ shop_content.page_title }}</h2>
+                                <p class="text-gray-600 mt-2 preview-subtitle">{{ shop_content.page_subtitle }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                        <a href="{% url 'dashboard:admin_site_content' %}" class="px-6 py-3 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition text-center">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-3 bg-scent-gold text-white rounded-lg font-medium hover:bg-amber-600 transition">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Last Updated -->
+                <div class="mt-6 text-center text-sm text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    Last updated: {{ shop_content.updated_at|date:"M d, Y g:i A" }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live preview
+    document.querySelector('input[name="page_title"]').addEventListener('input', function(e) {
+        document.querySelector('.preview-title').textContent = e.target.value || 'Our Collection';
+    });
+    document.querySelector('textarea[name="page_subtitle"]').addEventListener('input', function(e) {
+        document.querySelector('.preview-subtitle').textContent = e.target.value || 'Explore our curated selection of luxury perfumes';
+    });
+</script>
+{% endblock %}

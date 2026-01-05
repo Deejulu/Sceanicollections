@@ -1,0 +1,71 @@
+<footer class="bg-scent-blue text-white mt-6 md:mt-12">
+    <div class="container mx-auto px-4 py-6 md:py-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
+            <!-- Brand -->
+            <div class="sm:col-span-2 lg:col-span-1 mb-4 md:mb-0 text-center sm:text-left">
+                <h3 class="font-logo font-bold text-2xl md:text-3xl mb-3 md:mb-4" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);"><span class="text-white">Sceani</span><span class="text-amber-500">Collections</span></h3>
+                <p class="text-gray-400 text-xs md:text-sm">Luxury perfumes crafted with passion and precision.</p>
+                <div class="flex space-x-3 md:space-x-4 mt-4 md:mt-6 justify-center sm:justify-start">
+                    <a href="#" class="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-500 hover:bg-amber-500 hover:text-scent-blue transition active:scale-95"><i class="fab fa-facebook-f text-sm"></i></a>
+                    <a href="#" class="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-500 hover:bg-amber-500 hover:text-scent-blue transition active:scale-95"><i class="fab fa-instagram text-sm"></i></a>
+                    <a href="#" class="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-500 hover:bg-amber-500 hover:text-scent-blue transition active:scale-95"><i class="fab fa-twitter text-sm"></i></a>
+                    <a href="#" class="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-gray-900 flex items-center justify-center text-gray-500 hover:bg-amber-500 hover:text-scent-blue transition active:scale-95"><i class="fab fa-pinterest text-sm"></i></a>
+                </div>
+            </div>
+            <!-- Quick Links -->
+            <div class="text-center sm:text-left">
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-white mb-3 sm:mb-4">Quick Links</h4>
+                <ul class="space-y-2.5 sm:space-y-3">
+                    <li><a href="{% url 'home' %}" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">Home</a></li>
+                    <li><a href="{% url 'store:product_list' %}" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">Shop</a>
+                    </li>
+                    <li><a href="{% url 'store:category_list' %}"
+                            class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">Categories</a></li>
+                    <li><a href="{% url 'about' %}" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">Contact</a></li>
+                    <li><a href="{% url 'faq' %}" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">FAQ</a></li>
+                    <li><a href="javascript:void(0)" onclick="openGlobalFeedback()" class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5"><i class="fas fa-comment-dots mr-1"></i>Feedback</a></li>
+                </ul>
+            </div>
+            <!-- Categories -->
+            <div class="text-center sm:text-left">
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-white mb-3 sm:mb-4">Categories</h4>
+                <ul class="space-y-2.5 sm:space-y-3">
+                    {% for category in categories|slice:":5" %}
+                    <li>
+                        <a href="{% url 'store:category_detail' slug=category.slug %}"
+                            class="text-gray-500 hover:text-amber-500 text-sm transition inline-block py-0.5">
+                            {{ category.name }}
+                        </a>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500 text-sm">No categories yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- Contact & Newsletter -->
+            <div class="sm:col-span-2 lg:col-span-1 text-center sm:text-left">
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-white mb-3 md:mb-4">Contact Us</h4>
+                <p class="text-gray-500 text-sm mb-2"><i class="fas fa-envelope mr-2 text-amber-500"></i><span class="break-all">info@sceanicollections.com</span></p>
+                <p class="text-gray-500 text-sm mb-4 md:mb-6"><i class="fas fa-phone mr-2 text-amber-500"></i>+234 123 456 7890</p>
+                <h4 class="text-sm font-semibold uppercase tracking-wider text-white mb-3 md:mb-4">Newsletter</h4>
+                <p class="text-gray-500 text-sm mb-3">Subscribe for updates</p>
+                <form id="newsletter-form-footer" class="flex flex-col max-w-xs mx-auto sm:mx-0">
+                    {% csrf_token %}
+                    <div class="flex">
+                        <input type="email" name="email" id="newsletter-email-footer" placeholder="Your email" required class="px-3 md:px-4 py-3 rounded-l-lg flex-grow text-gray-900 bg-gray-900 border border-gray-800 text-white placeholder-gray-600 text-sm focus:border-amber-500 focus:outline-none min-w-0">
+                        <button type="submit" class="bg-amber-500 px-4 py-3 rounded-r-lg hover:bg-amber-400 text-scent-blue transition flex-shrink-0 active:scale-95">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <p id="newsletter-message-footer" class="text-xs mt-2 hidden"></p>
+                </form>
+            </div>
+        </div>
+        <!-- Copyright -->
+        <div class="border-t border-gray-900 mt-8 md:mt-10 pt-6 md:pt-8 text-center">
+            <p class="text-gray-600 text-sm">&copy; {% now "Y" %} SceaniCollections. All rights reserved.</p>
+            <p class="text-xs text-gray-700 mt-2">Premium Perfume E-commerce Platform</p>
+        </div>
+    </div>
+</footer>

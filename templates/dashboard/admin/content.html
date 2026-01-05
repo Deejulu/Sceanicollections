@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Content Management</h1>
+            <p class="text-gray-500 text-sm mt-1">Edit and manage your website content</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2 space-y-6">
+                
+                <!-- Store Content Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50">
+                        <h2 class="text-lg font-bold text-gray-900">Store Content</h2>
+                        <p class="text-sm text-gray-500">Manage products, categories, and shop page</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Categories -->
+                            <a href="{% url 'dashboard:admin_categories' %}" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition group">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition">
+                                    <i class="fas fa-tags text-purple-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Categories</h3>
+                                    <p class="text-sm text-gray-500">{{ categories_count }} categories</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-purple-600"></i>
+                            </a>
+
+                            <!-- Products -->
+                            <a href="{% url 'dashboard:admin_products' %}" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition group">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition">
+                                    <i class="fas fa-wine-bottle text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Products</h3>
+                                    <p class="text-sm text-gray-500">{{ products_count }} products</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-blue-600"></i>
+                            </a>
+
+                            <!-- Shop Page -->
+                            <a href="{% url 'dashboard:admin_shop_content' %}" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition group">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition">
+                                    <i class="fas fa-store text-green-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Shop Page</h3>
+                                    <p class="text-sm text-gray-500">Title & labels</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-green-600"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Homepage Content Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                        <h2 class="text-lg font-bold text-gray-900">Homepage Content</h2>
+                        <p class="text-sm text-gray-500">Customize your homepage appearance</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Hero Section -->
+                            <a href="{% url 'dashboard:admin_hero_section' %}" class="flex items-center p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition group">
+                                <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200 transition">
+                                    <i class="fas fa-image text-amber-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Hero Section</h3>
+                                    <p class="text-sm text-gray-500">Banner & CTA</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-amber-600"></i>
+                            </a>
+
+                            <!-- Homepage Sections -->
+                            <a href="{% url 'dashboard:admin_homepage_sections' %}" class="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition group">
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition">
+                                    <i class="fas fa-puzzle-piece text-orange-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Sections</h3>
+                                    <p class="text-sm text-gray-500">{{ homepage_sections_count }} active</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-orange-600"></i>
+                            </a>
+
+                            <!-- Banners -->
+                            <a href="{% url 'dashboard:admin_banners' %}" class="flex items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition group">
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition">
+                                    <i class="fas fa-bullhorn text-red-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Banners</h3>
+                                    <p class="text-sm text-gray-500">{{ active_banners_count }} active</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-red-600"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Settings Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-cyan-50">
+                        <h2 class="text-lg font-bold text-gray-900">Site Settings & Pages</h2>
+                        <p class="text-sm text-gray-500">Global settings and static pages</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Site Settings -->
+                            <a href="{% url 'dashboard:admin_site_settings' %}" class="flex items-center p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition group">
+                                <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-teal-200 transition">
+                                    <i class="fas fa-sliders-h text-teal-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Site Settings</h3>
+                                    <p class="text-sm text-gray-500">Contact, social, SEO</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-teal-600"></i>
+                            </a>
+
+                            <!-- Static Pages -->
+                            <a href="{% url 'dashboard:admin_pages' %}" class="flex items-center p-4 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition group">
+                                <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:bg-cyan-200 transition">
+                                    <i class="fas fa-file-alt text-cyan-600 text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-bold text-gray-900">Static Pages</h3>
+                                    <p class="text-sm text-gray-500">{{ pages_count }} pages</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-400 group-hover:text-cyan-600"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Site Settings Overview -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">Site Overview</h2>
+                            <p class="text-sm text-gray-500">Current site configuration</p>
+                        </div>
+                        <a href="{% url 'dashboard:admin_site_settings' %}" class="text-scent-gold hover:text-amber-600 text-sm font-medium">
+                            <i class="fas fa-edit mr-1"></i> Edit
+                        </a>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Site Name</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.site_name }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Tagline</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.site_tagline }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Contact Email</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.contact_email }}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Contact Phone</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.contact_phone }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Business Hours</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.business_hours }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 uppercase tracking-wider">Last Updated</label>
+                                    <p class="font-medium text-gray-900">{{ site_settings.updated_at|date:"M d, Y g:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Django Admin Link (Optional) -->
+                <div class="bg-gray-100 rounded-xl p-4 text-center">
+                    <p class="text-sm text-gray-600">
+                        Need advanced options? 
+                        <a href="/admin/" class="text-scent-gold hover:text-amber-600 font-medium">
+                            <i class="fas fa-external-link-alt mr-1"></i>Open Django Admin
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

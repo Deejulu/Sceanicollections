@@ -1,0 +1,265 @@
+<!-- Global Feedback Modal - Available on all pages -->
+<div id="globalFeedbackModal" class="fixed inset-0 z-[100] hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeGlobalFeedback()"></div>
+    
+    <!-- Modal Content -->
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-slideIn overflow-hidden">
+            <!-- Success State (Hidden initially) -->
+            <div id="globalFeedbackSuccess" class="hidden p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-circle text-green-500 text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Thank You! 🎉</h3>
+                <p class="text-gray-600 mb-6">Your feedback has been submitted successfully. We truly appreciate you taking the time to help us improve!</p>
+                <button onclick="closeGlobalFeedback()" 
+                        class="px-6 py-2.5 bg-scent-blue text-white rounded-lg hover:bg-gray-800 transition font-medium">
+                    Close
+                </button>
+            </div>
+            
+            <!-- Form State -->
+            <div id="globalFeedbackForm">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-scent-blue to-gray-800 px-6 py-5 text-white relative">
+                    <button onclick="closeGlobalFeedback()" 
+                            class="absolute top-4 right-4 text-white/70 hover:text-white transition">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-comment-dots text-scent-blue text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg">We'd Love Your Feedback!</h3>
+                            <p class="text-white/70 text-sm">Help us improve your experience</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6">
+                    <!-- Star Rating -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">How would you rate your experience?</label>
+                        <div class="flex justify-center gap-2" id="globalStarRating">
+                            <button type="button" onclick="setGlobalRating(1)" class="global-star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none" data-rating="1">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button type="button" onclick="setGlobalRating(2)" class="global-star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none" data-rating="2">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button type="button" onclick="setGlobalRating(3)" class="global-star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none" data-rating="3">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button type="button" onclick="setGlobalRating(4)" class="global-star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none" data-rating="4">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button type="button" onclick="setGlobalRating(5)" class="global-star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none" data-rating="5">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                        <p id="globalRatingText" class="text-center text-sm text-gray-500 mt-2">Click to rate</p>
+                    </div>
+                    
+                    <!-- Feedback Type -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">What's this about?</label>
+                        <select id="globalFeedbackType" 
+                                class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-scent-blue focus:ring-1 focus:ring-scent-blue text-sm">
+                            <option value="general">General Feedback</option>
+                            <option value="website_usability">Website Experience</option>
+                            <option value="product_selection">Product Selection</option>
+                            <option value="checkout_experience">Checkout Process</option>
+                            <option value="payment_process">Payment Process</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="complaint">Report an Issue</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Email (for guests) -->
+                    {% if not user.is_authenticated %}
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Email (optional)</label>
+                        <input type="email" id="globalFeedbackEmail" 
+                               class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-scent-blue focus:ring-1 focus:ring-scent-blue text-sm"
+                               placeholder="your@email.com">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Message -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
+                        <textarea id="globalFeedbackMessage" 
+                                  rows="4" 
+                                  class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-scent-blue focus:ring-1 focus:ring-scent-blue text-sm resize-none"
+                                  placeholder="Tell us what you think, suggest improvements, or report any issues..."></textarea>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button onclick="submitGlobalFeedback()" 
+                            id="submitGlobalFeedbackBtn"
+                            class="w-full py-3 bg-amber-500 text-scent-blue rounded-lg hover:bg-amber-400 transition font-semibold flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Feedback
+                    </button>
+                    
+                    <!-- Privacy Note -->
+                    <p class="text-center text-xs text-gray-400 mt-4">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        Your feedback is confidential and helps us serve you better.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .animate-slideIn {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .global-star-btn.active {
+        color: #F59E0B;
+        transform: scale(1.15);
+    }
+    
+    .global-star-btn.active i {
+        filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+    }
+    
+    /* Floating feedback button pulse animation */
+    #floatingFeedback {
+        animation: pulse-glow 2s infinite;
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+        50% {
+            box-shadow: 0 4px 25px rgba(212, 175, 55, 0.7);
+        }
+    }
+    
+    #floatingFeedback:hover {
+        animation: none;
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    }
+</style>
+
+<script>
+let globalSelectedRating = 0;
+const globalRatingTexts = {
+    1: 'Poor - We\'ll do better! 😔',
+    2: 'Fair - Room for improvement 🤔',
+    3: 'Good - Thanks! 🙂',
+    4: 'Very Good - We\'re happy! 😊',
+    5: 'Excellent - You made our day! 🎉'
+};
+
+function setGlobalRating(rating) {
+    globalSelectedRating = rating;
+    const stars = document.querySelectorAll('.global-star-btn');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+    document.getElementById('globalRatingText').textContent = globalRatingTexts[rating];
+}
+
+function openGlobalFeedback() {
+    document.getElementById('globalFeedbackModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGlobalFeedback() {
+    document.getElementById('globalFeedbackModal').classList.add('hidden');
+    document.body.style.overflow = '';
+    // Reset form
+    resetGlobalFeedbackForm();
+}
+
+function resetGlobalFeedbackForm() {
+    globalSelectedRating = 0;
+    document.querySelectorAll('.global-star-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('globalRatingText').textContent = 'Click to rate';
+    document.getElementById('globalFeedbackType').value = 'general';
+    document.getElementById('globalFeedbackMessage').value = '';
+    const emailField = document.getElementById('globalFeedbackEmail');
+    if (emailField) emailField.value = '';
+    
+    // Show form, hide success
+    document.getElementById('globalFeedbackForm').classList.remove('hidden');
+    document.getElementById('globalFeedbackSuccess').classList.add('hidden');
+}
+
+function submitGlobalFeedback() {
+    const btn = document.getElementById('submitGlobalFeedbackBtn');
+    const originalContent = btn.innerHTML;
+    
+    // Validate
+    const message = document.getElementById('globalFeedbackMessage').value.trim();
+    if (!message && !globalSelectedRating) {
+        alert('Please provide a rating or message.');
+        return;
+    }
+    
+    // Show loading state
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    btn.disabled = true;
+    
+    const emailField = document.getElementById('globalFeedbackEmail');
+    
+    const data = {
+        rating: globalSelectedRating || null,
+        feedback_type: document.getElementById('globalFeedbackType').value,
+        message: message,
+        customer_email: emailField ? emailField.value : '',
+        page_url: window.location.href
+    };
+    
+    fetch('{% url "feedback:submit_feedback" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success state
+            document.getElementById('globalFeedbackForm').classList.add('hidden');
+            document.getElementById('globalFeedbackSuccess').classList.remove('hidden');
+        } else {
+            alert(data.message || 'Something went wrong. Please try again.');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Unable to submit feedback. Please try again.');
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    });
+}
+</script>

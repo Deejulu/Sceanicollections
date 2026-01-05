@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Newsletter - SceaniCollections{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+            {% if success %}
+            <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Unsubscribed Successfully</h2>
+            <p class="text-gray-600 mb-6">{{ message }}</p>
+            {% if email %}
+            <p class="text-sm text-gray-500 mb-6">{{ email }} has been removed from our mailing list.</p>
+            {% endif %}
+            {% else %}
+            <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Oops!</h2>
+            <p class="text-gray-600 mb-6">{{ message }}</p>
+            {% endif %}
+            
+            <div class="mt-8 space-y-4">
+                <a href="{% url 'store:product_list' %}" class="block w-full py-3 px-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition">
+                    Continue Shopping
+                </a>
+                <a href="{% url 'home' %}" class="block text-gray-600 hover:text-gray-900 transition">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <p class="text-sm text-gray-500">
+                Changed your mind? <a href="{% url 'home' %}" class="text-amber-600 hover:text-amber-700">Re-subscribe</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

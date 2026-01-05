@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container { position: relative; height: 300px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Analytics & Reports</h1>
+                <p class="text-gray-500 text-sm mt-1">Track your store performance and insights</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <select id="dateRange" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2 space-y-6">
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Total Revenue</p>
+                                <p class="text-2xl font-bold text-gray-900">₦{{ total_revenue|floatformat:0 }}</p>
+                                <p class="text-xs {% if revenue_growth >= 0 %}text-green-600{% else %}text-red-600{% endif %} mt-1">
+                                    <i class="fas fa-{% if revenue_growth >= 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                                    {{ revenue_growth|floatformat:1 }}% vs last period
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Orders</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ total_orders }}</p>
+                                <p class="text-xs {% if orders_growth >= 0 %}text-green-600{% else %}text-red-600{% endif %} mt-1">
+                                    <i class="fas fa-{% if orders_growth >= 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                                    {{ orders_growth|floatformat:1 }}% vs last period
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Avg Order Value</p>
+                                <p class="text-2xl font-bold text-gray-900">₦{{ avg_order_value|floatformat:0 }}</p>
+                                <p class="text-xs text-gray-500 mt-1">Per transaction</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">New Customers</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ new_customers }}</p>
+                                <p class="text-xs {% if customers_growth >= 0 %}text-green-600{% else %}text-red-600{% endif %} mt-1">
+                                    <i class="fas fa-{% if customers_growth >= 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                                    {{ customers_growth|floatformat:1 }}% vs last period
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-amber-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Chart -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Sales Overview</h2>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Top Products -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Top Selling Products</h2>
+                        {% if top_products %}
+                        <div class="space-y-4">
+                            {% for product in top_products %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                        {% if product.images.first %}
+                                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <i class="fas fa-wine-bottle text-gray-300"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ product.name|truncatechars:25 }}</p>
+                                        <p class="text-xs text-gray-500">{{ product.purchase_count }} sold</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold text-scent-gold">₦{{ product.price|floatformat:0 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500 text-center py-8">No sales data yet</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sales by Category -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Sales by Category</h2>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Order Status Distribution -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Order Status</h2>
+                        <div class="space-y-4">
+                            {% for status in order_statuses %}
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600 capitalize">{{ status.status }}</span>
+                                    <span class="font-medium">{{ status.count }} ({{ status.percentage }}%)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="h-2 rounded-full 
+                                        {% if status.status == 'delivered' %}bg-green-500
+                                        {% elif status.status == 'shipped' %}bg-blue-500
+                                        {% elif status.status == 'processing' %}bg-purple-500
+                                        {% elif status.status == 'pending' %}bg-amber-500
+                                        {% else %}bg-red-500{% endif %}"
+                                        style="width: {{ status.percentage }}%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
+                        {% if recent_activity %}
+                        <div class="space-y-4">
+                            {% for activity in recent_activity %}
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                                    {% if activity.type == 'order' %}bg-blue-100 text-blue-600
+                                    {% elif activity.type == 'customer' %}bg-green-100 text-green-600
+                                    {% else %}bg-purple-100 text-purple-600{% endif %}">
+                                    <i class="fas fa-{% if activity.type == 'order' %}shopping-bag{% elif activity.type == 'customer' %}user-plus{% else %}comment{% endif %} text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-900">{{ activity.message }}</p>
+                                    <p class="text-xs text-gray-500">{{ activity.time|timesince }} ago</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500 text-center py-8">No recent activity</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Conversion Stats -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Performance Metrics</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-3xl font-bold text-gray-900">{{ conversion_rate|floatformat:1 }}%</p>
+                            <p class="text-sm text-gray-500 mt-1">Conversion Rate</p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-3xl font-bold text-gray-900">{{ repeat_customer_rate|floatformat:1 }}%</p>
+                            <p class="text-sm text-gray-500 mt-1">Repeat Customers</p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-3xl font-bold text-gray-900">{{ avg_items_per_order|floatformat:1 }}</p>
+                            <p class="text-sm text-gray-500 mt-1">Items per Order</p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-3xl font-bold text-gray-900">{{ customer_satisfaction|floatformat:1 }}</p>
+                            <p class="text-sm text-gray-500 mt-1">Avg Rating (out of 5)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Sales Chart
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+new Chart(salesCtx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|safe }},
+        datasets: [{
+            label: 'Revenue (₦)',
+            data: {{ sales_data|safe }},
+            borderColor: '#D4AF37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₦' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ category_labels|safe }},
+        datasets: [{
+            data: {{ category_data|safe }},
+            backgroundColor: [
+                '#D4AF37', '#1a237e', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

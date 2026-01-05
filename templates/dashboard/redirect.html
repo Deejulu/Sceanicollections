@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Redirecting... - SceaniCollections{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center">
+        <div
+            class="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-scent-gold to-amber-500 flex items-center justify-center">
+            <i class="fas fa-spinner fa-spin text-white text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Redirecting to Dashboard...</h1>
+        <p class="text-gray-600 mb-8">Please wait while we take you to your dashboard.</p>
+        <div class="text-sm text-gray-500">
+            <p>If you're not redirected in a few seconds, click below:</p>
+            <div class="mt-4 space-x-4">
+                <a href="{% url 'dashboard:customer_dashboard' %}"
+                    class="text-scent-gold hover:text-amber-600 font-medium">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Customer Dashboard
+                </a>
+                {% if user.is_admin_user %}
+                <a href="{% url 'dashboard:admin_dashboard' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-cog mr-2"></i>Admin Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Auto-redirect after 2 seconds
+    setTimeout(function () {
+        {% if user.is_admin_user %}
+        window.location.href = "{% url 'dashboard:admin_dashboard' %}";
+        {% else %}
+        window.location.href = "{% url 'dashboard:customer_dashboard' %}";
+        {% endif %}
+    }, 2000);
+</script>
+{% endblock %}

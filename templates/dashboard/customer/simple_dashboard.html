@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Dashboard Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Welcome, {{ user.first_name|default:"Valued Customer"
+                        }}! 👋</h1>
+                    <p class="text-gray-600 mt-2">Your SceaniCollections Dashboard</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="w-16 h-16 rounded-full bg-gradient-to-r from-amber-200 to-scent-gold flex items-center justify-center">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="{{ user.email }}"
+                                class="w-full h-full rounded-full object-cover">
+                            {% else %}
+                            <span class="text-2xl font-bold text-white">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Orders</p>
+                        <p class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-heart text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Wishlist Items</p>
+                        <p class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center mr-4">
+                        <i class="fas fa-gem text-amber-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Loyalty Points</p>
+                        <p class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Dashboard Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="{% url 'store:product_list' %}"
+                            class="bg-gradient-to-r from-scent-gold to-amber-500 text-white p-4 rounded-lg text-center hover:from-amber-600 hover:to-scent-gold transition">
+                            <i class="fas fa-store text-2xl mb-2"></i>
+                            <p class="font-medium">Shop Now</p>
+                        </a>
+                        <a href="{% url 'dashboard:customer_orders' %}"
+                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg text-center hover:from-blue-600 hover:to-blue-700 transition">
+                            <i class="fas fa-shopping-bag text-2xl mb-2"></i>
+                            <p class="font-medium">View Orders</p>
+                        </a>
+                    </div>
+                </div>
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+                    <div class="text-center py-8">
+                        <i class="fas fa-history text-gray-300 text-4xl mb-4"></i>
+                        <p class="text-gray-500">No recent activity</p>
+                        <p class="text-gray-400 text-sm mt-1">Your orders and activities will appear here</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column -->
+            <div>
+                <!-- Account Summary -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Account Summary</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-medium">{{ user.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Member Since</p>
+                            <p class="font-medium">{{ user.date_joined|date:"F d, Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Account Type</p>
+                            <p class="font-medium">{{ user.get_user_type_display }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Help Section -->
+                <div class="bg-gradient-to-r from-scent-gold to-amber-500 rounded-xl shadow-lg p-6 text-white">
+                    <h2 class="text-xl font-bold mb-4">Need Help?</h2>
+                    <p class="mb-4">Our customer support is here to help you!</p>
+                    <a href="mailto:support@sceanicollections.com"
+                        class="inline-block bg-white text-scent-gold px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
+                        <i class="fas fa-envelope mr-2"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

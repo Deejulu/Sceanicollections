@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Order Confirmed - SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-container {
+        min-height: 70vh;
+    }
+    
+    .success-animation {
+        animation: scaleIn 0.5s ease-out;
+    }
+    
+    @keyframes scaleIn {
+        0% { transform: scale(0); opacity: 0; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .order-timeline {
+        position: relative;
+    }
+    
+    .order-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 24px;
+        bottom: 24px;
+        width: 2px;
+        background: #e5e7eb;
+    }
+    
+    .dark .order-timeline::before {
+        background: #374151;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 40px;
+    }
+    
+    .timeline-dot {
+        position: absolute;
+        left: 8px;
+        top: 4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #e5e7eb;
+    }
+    
+    .dark .timeline-dot {
+        background: #374151;
+        border-color: #1e293b;
+        box-shadow: 0 0 0 2px #374151;
+    }
+    
+    .timeline-dot.active {
+        background: #D4AF37;
+        box-shadow: 0 0 0 2px #D4AF37;
+    }
+    
+    .timeline-dot.completed {
+        background: #1a237e;
+        box-shadow: 0 0 0 2px #1a237e;
+    }
+    
+    .dark .timeline-dot.completed {
+        background: #D4AF37;
+        box-shadow: 0 0 0 2px #D4AF37;
+    }
+    
+    /* Card styling for dark mode */
+    .order-card {
+        background: white;
+        border: 1px solid #f3f4f6;
+    }
+    
+    .dark .order-card {
+        background: #1e293b;
+        border-color: #374151;
+    }
+    
+    .order-summary-bg {
+        background: #f9fafb;
+    }
+    
+    .dark .order-summary-bg {
+        background: #0f172a;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container bg-gray-50 dark:bg-dark-bg py-6 sm:py-8 md:py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto">
+            
+            <!-- Success Header -->
+            <div class="text-center mb-6 sm:mb-10">
+                <div class="success-animation w-16 h-16 sm:w-20 sm:h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                    <i class="fas fa-check text-green-600 dark:text-green-400 text-2xl sm:text-3xl"></i>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Thank You for Your Order!</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">Your order has been placed successfully.</p>
+            </div>
+            
+            <!-- Order Details Card -->
+            <div class="order-card rounded-xl shadow-sm overflow-hidden mb-4 sm:mb-6">
+                <div class="bg-scent-blue px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-white gap-2">
+                        <div>
+                            <h2 class="font-semibold text-sm sm:text-base">Order #{{ order.order_number }}</h2>
+                            <p class="text-gray-300 text-xs sm:text-sm">{{ order.created_at|date:"F d, Y" }} at {{ order.created_at|time:"g:i A" }}</p>
+                        </div>
+                        <span class="px-3 py-1 bg-amber-500 text-scent-blue text-[10px] sm:text-xs font-bold rounded-full uppercase w-fit">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="p-4 sm:p-6">
+                    <!-- Confirmation Email Notice -->
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-envelope text-blue-500 dark:text-blue-400 mt-0.5 mr-2 sm:mr-3 text-sm sm:text-base"></i>
+                            <div>
+                                <p class="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
+                                    A confirmation email has been sent to <strong class="break-all">{{ order.customer_email }}</strong>
+                                </p>
+                                <p class="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-1">Please check your inbox (and spam folder) for order details.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">Order Items</h3>
+                    <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                        {% for item in order.items.all %}
+                        <div class="flex items-center gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0">
+                            {% if item.product.images.first %}
+                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}" 
+                                 class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-100 dark:border-gray-700 flex-shrink-0">
+                            {% else %}
+                            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-wine-bottle text-gray-300 dark:text-gray-500 text-sm sm:text-base"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 dark:text-white text-xs sm:text-sm truncate">{{ item.product_name }}</p>
+                                <p class="text-[10px] sm:text-xs text-gray-400">Qty: {{ item.quantity }}</p>
+                            </div>
+                            <p class="font-medium text-gray-900 dark:text-white text-xs sm:text-base">₦{{ item.total|floatformat:0|intcomma }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary-bg rounded-lg p-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+                                <span class="text-gray-900 dark:text-white">₦{{ order.subtotal|floatformat:0|intcomma }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Shipping ({{ order.get_shipping_method_display }})</span>
+                                <span class="text-gray-900 dark:text-white">₦{{ order.shipping_fee|floatformat:0|intcomma }}</span>
+                            </div>
+                            {% if order.tax_amount %}
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Tax</span>
+                                <span class="text-gray-900 dark:text-white">₦{{ order.tax_amount|floatformat:0|intcomma }}</span>
+                            </div>
+                            {% endif %}
+                            {% if order.discount_amount %}
+                            <div class="flex justify-between text-sm text-green-600 dark:text-green-400">
+                                <span>Discount</span>
+                                <span>-₦{{ order.discount_amount|floatformat:0|intcomma }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-600 mt-2">
+                                <span class="font-semibold text-gray-900 dark:text-white">Total</span>
+                                <span class="text-lg font-bold text-scent-blue dark:text-amber-500">₦{{ order.total|floatformat:0|intcomma }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping & Payment Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <!-- Shipping Address -->
+                <div class="order-card rounded-xl shadow-sm p-4 sm:p-6">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+                        <i class="fas fa-truck text-amber-500 mr-2"></i> Shipping Address
+                    </h3>
+                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                        <p class="font-medium text-gray-900 dark:text-white">{{ order.shipping_full_name }}</p>
+                        <p>{{ order.shipping_address }}</p>
+                        <p>{{ order.shipping_city }}, {{ order.shipping_state }}</p>
+                        {% if order.shipping_postal_code %}
+                        <p>{{ order.shipping_postal_code }}</p>
+                        {% endif %}
+                        <p>{{ order.shipping_country.name }}</p>
+                        <p class="pt-2"><i class="fas fa-phone mr-1 text-amber-500"></i> {{ order.shipping_phone }}</p>
+                    </div>
+                </div>
+                
+                <!-- Payment Info -->
+                <div class="order-card rounded-xl shadow-sm p-4 sm:p-6">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+                        <i class="fas fa-credit-card text-amber-500 mr-2"></i> Payment Information
+                    </h3>
+                    <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                        <div class="flex justify-between">
+                            <span>Payment Method</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{ order.get_payment_method_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Payment Status</span>
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium 
+                                {% if order.payment_status == 'paid' %}bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400
+                                {% elif order.payment_status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400
+                                {% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300{% endif %}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </div>
+                        {% if order.transaction_id %}
+                        <div class="flex justify-between">
+                            <span>Transaction ID</span>
+                            <span class="font-mono text-xs text-gray-900 dark:text-white">{{ order.transaction_id }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Timeline -->
+            <div class="order-card rounded-xl shadow-sm p-6 mb-6">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-clock text-amber-500 mr-2"></i> Order Timeline
+                </h3>
+                <div class="order-timeline space-y-6">
+                    <div class="timeline-item">
+                        <div class="timeline-dot completed"></div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Order Placed</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.created_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot {% if order.payment_status == 'paid' %}completed{% elif order.payment_status == 'pending' %}active{% endif %}"></div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white text-sm">Payment {% if order.payment_status == 'paid' %}Confirmed{% else %}Pending{% endif %}</p>
+                            {% if order.paid_at %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.paid_at|date:"M d, Y g:i A" }}</p>
+                            {% else %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Awaiting payment confirmation</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot {% if order.status == 'processing' %}active{% elif order.status in 'shipped,delivered' %}completed{% endif %}"></div>
+                        <div>
+                            <p class="font-medium text-sm {% if order.status not in 'processing,shipped,delivered' %}text-gray-400 dark:text-gray-500{% else %}text-gray-900 dark:text-white{% endif %}">Processing</p>
+                            {% if order.processing_at %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.processing_at|date:"M d, Y g:i A" }}</p>
+                            {% else %}
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Preparing your order</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot {% if order.status == 'shipped' %}active{% elif order.status == 'delivered' %}completed{% endif %}"></div>
+                        <div>
+                            <p class="font-medium text-sm {% if order.status not in 'shipped,delivered' %}text-gray-400 dark:text-gray-500{% else %}text-gray-900 dark:text-white{% endif %}">Shipped</p>
+                            {% if order.shipped_at %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.shipped_at|date:"M d, Y g:i A" }}</p>
+                            {% if order.tracking_number %}
+                            <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                <i class="fas fa-external-link-alt mr-1"></i>
+                                Tracking: {{ order.tracking_number }}
+                            </p>
+                            {% endif %}
+                            {% else %}
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Your order will be shipped soon</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot {% if order.status == 'delivered' %}completed{% endif %}"></div>
+                        <div>
+                            <p class="font-medium text-sm {% if order.status != 'delivered' %}text-gray-400 dark:text-gray-500{% else %}text-gray-900 dark:text-white{% endif %}">Delivered</p>
+                            {% if order.delivered_at %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.delivered_at|date:"M d, Y g:i A" }}</p>
+                            {% else %}
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Estimated delivery: 5-7 business days</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard:customer_orders' %}" 
+                   class="inline-flex items-center justify-center px-6 py-3 bg-scent-blue dark:bg-amber-600 text-white rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-amber-500 transition">
+                    <i class="fas fa-shopping-bag mr-2 text-amber-500 dark:text-white"></i> View My Orders
+                </a>
+                {% endif %}
+                <a href="{% url 'store:product_list' %}" 
+                   class="inline-flex items-center justify-center px-6 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-store mr-2"></i> Continue Shopping
+                </a>
+            </div>
+            
+            <!-- Support -->
+            <div class="text-center mt-8 text-sm text-gray-500 dark:text-gray-400">
+                <p>Questions about your order?</p>
+                <p>Contact us at <a href="mailto:support@sceanicollections.com" class="text-scent-blue dark:text-amber-500 hover:underline">support@sceanicollections.com</a></p>
+            </div>
+            
+            <!-- Feedback Button (manual trigger) -->
+            <div class="text-center mt-6">
+                <button onclick="openFeedbackModal()" 
+                        class="inline-flex items-center gap-2 text-scent-blue dark:text-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition text-sm font-medium">
+                    <i class="fas fa-comment-dots"></i>
+                    Share your feedback
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Popup Modal -->
+{% include 'feedback/_feedback_popup.html' %}
+{% endblock %}

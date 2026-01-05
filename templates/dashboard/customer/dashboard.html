@@ -1,0 +1,481 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    }
+    .loyalty-card {
+        background: linear-gradient(135deg, #1a237e 0%, #0d1452 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .loyalty-card::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+    }
+    .progress-bar {
+        background: linear-gradient(90deg, #D4AF37 0%, #f5d76e 100%);
+    }
+    .action-card {
+        transition: all 0.3s ease;
+    }
+    .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .tracking-pulse {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+        <!-- Dashboard Header with Greeting -->
+        <div class="mb-6 md:mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                        Welcome back, {{ user.first_name|default:"there" }}! 👋
+                    </h1>
+                    <p class="text-gray-500 text-sm mt-1">Here's what's happening with your account today.</p>
+                </div>
+                <div class="mt-3 sm:mt-0">
+                    <a href="{% url 'store:product_list' %}" class="inline-flex items-center px-4 py-2 bg-scent-blue text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition">
+                        <i class="fas fa-shopping-bag mr-2 text-amber-500"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                <!-- Profile Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div class="flex items-center mb-4 sm:mb-6">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-scent-blue flex items-center justify-center border-2 border-amber-500/30 flex-shrink-0">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="{{ user.email }}" class="w-full h-full rounded-full object-cover">
+                            {% else %}
+                            <span class="text-xl sm:text-2xl font-bold text-amber-500">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 sm:ml-4 overflow-hidden">
+                            <h3 class="font-semibold text-gray-900 truncate">{{ user.get_full_name|default:user.email }}</h3>
+                            <p class="text-xs text-gray-400">Member since {{ user.date_joined|date:"M Y" }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Profile Completion -->
+                    <div class="mb-5 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-medium text-gray-600">Profile Completion</span>
+                            <span class="text-xs font-bold text-scent-blue">{{ profile_completion }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: {{ profile_completion }}%"></div>
+                        </div>
+                        {% if profile_completion < 100 %}
+                        <a href="{% url 'dashboard:customer_profile' %}" class="text-xs text-amber-600 hover:text-amber-700 mt-2 inline-block">
+                            Complete your profile →
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-1">
+                        <a href="{% url 'dashboard:customer_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'overview' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+                            <i class="fas fa-th-large mr-3 {% if dashboard_active == 'overview' %}text-amber-500{% endif %} w-5"></i>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'dashboard:customer_orders' %}" class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'orders' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+                            <i class="fas fa-shopping-bag mr-3 {% if dashboard_active == 'orders' %}text-amber-500{% endif %} w-5"></i>
+                            My Orders
+                            {% if pending_processing_orders_count > 0 %}
+                            <span class="ml-auto bg-amber-500 text-scent-blue text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ pending_processing_orders_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'dashboard:customer_wishlist' %}" class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'wishlist' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+                            <i class="fas fa-heart mr-3 {% if dashboard_active == 'wishlist' %}text-amber-500{% endif %} w-5"></i>
+                            Wishlist
+                        </a>
+                        <a href="{% url 'dashboard:customer_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'profile' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+                            <i class="fas fa-user-cog mr-3 {% if dashboard_active == 'profile' %}text-amber-500{% endif %} w-5"></i>
+                            Profile Settings
+                        </a>
+                        <a href="{% url 'dashboard:customer_addresses' %}" class="flex items-center px-4 py-3 rounded-lg text-sm {% if dashboard_active == 'addresses' %}bg-scent-blue text-white{% else %}text-gray-600 hover:bg-gray-50 hover:text-scent-blue{% endif %} transition">
+                            <i class="fas fa-map-marker-alt mr-3 {% if dashboard_active == 'addresses' %}text-amber-500{% endif %} w-5"></i>
+                            Addresses
+                            <span class="ml-auto text-xs text-gray-400">{{ address_count }}</span>
+                        </a>
+                        <div class="pt-4 mt-4 border-t border-gray-100">
+                            <a href="{% url 'accounts:logout' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition">
+                                <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- Loyalty Points Card -->
+                <div class="loyalty-card rounded-xl shadow-sm p-5 text-white hidden sm:block">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-base">Loyalty Rewards</h3>
+                        <i class="fas fa-crown text-amber-500"></i>
+                    </div>
+                    <div class="flex items-baseline mb-2">
+                        <span class="text-3xl font-bold text-amber-500">{{ user.loyalty_points|default:0 }}</span>
+                        <span class="text-gray-400 text-sm ml-2">points</span>
+                    </div>
+                    <p class="text-gray-400 text-xs mb-4">
+                        <i class="fas fa-gem mr-1 text-amber-500/50"></i>
+                        {{ user.loyalty_tier|default:"Explorer" }} Member
+                    </p>
+                    <div class="bg-white/10 rounded-lg p-3">
+                        <p class="text-xs text-gray-300 mb-1">Earn 1 point for every ₦100 spent</p>
+                        <p class="text-xs text-amber-400">100 points = ₦500 discount</p>
+                    </div>
+                </div>
+
+                <!-- Need Help Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mt-4 hidden lg:block">
+                    <h4 class="font-semibold text-gray-900 text-sm mb-3">Need Help?</h4>
+                    <div class="space-y-2">
+                        <a href="#" class="flex items-center text-xs text-gray-500 hover:text-scent-blue transition">
+                            <i class="fas fa-question-circle mr-2 text-amber-500"></i> FAQs
+                        </a>
+                        <a href="#" class="flex items-center text-xs text-gray-500 hover:text-scent-blue transition">
+                            <i class="fas fa-headset mr-2 text-amber-500"></i> Contact Support
+                        </a>
+                        <a href="#" class="flex items-center text-xs text-gray-500 hover:text-scent-blue transition">
+                            <i class="fas fa-undo mr-2 text-amber-500"></i> Return Policy
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <!-- Quick Stats Row -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    <div class="stat-card bg-white rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-10 h-10 rounded-lg bg-scent-blue/10 flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-scent-blue"></i>
+                            </div>
+                            <span class="text-xs text-gray-400">Total</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_orders }}</p>
+                        <p class="text-xs text-gray-500">Orders placed</p>
+                    </div>
+
+                    <div class="stat-card bg-white rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-400">Done</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900">{{ delivered_orders_count }}</p>
+                        <p class="text-xs text-gray-500">Delivered</p>
+                    </div>
+
+                    <div class="stat-card bg-white rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <i class="fas fa-truck text-blue-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-400">Active</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900">{{ shipped_orders_count }}</p>
+                        <p class="text-xs text-gray-500">In Transit</p>
+                    </div>
+
+                    <div class="stat-card bg-white rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                                <i class="fas fa-wallet text-amber-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-400">Spent</span>
+                        </div>
+                        <p class="text-xl sm:text-2xl font-bold text-gray-900">₦{{ total_spent|floatformat:0 }}</p>
+                        <p class="text-xs text-gray-500">Total spent</p>
+                    </div>
+                </div>
+
+                <!-- Orders In Transit Alert -->
+                {% if orders_in_transit %}
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-6 border border-blue-100">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-truck tracking-pulse text-blue-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="font-semibold text-gray-900 text-sm">Orders On The Way!</h3>
+                            <p class="text-xs text-gray-600 mt-1">You have {{ orders_in_transit|length }} order{{ orders_in_transit|length|pluralize }} being delivered</p>
+                            <div class="mt-3 space-y-2">
+                                {% for order in orders_in_transit %}
+                                <div class="flex items-center justify-between bg-white rounded-lg p-2 text-xs">
+                                    <span class="font-medium text-gray-700">#{{ order.order_number }}</span>
+                                    <span class="text-gray-500">{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+                                    <a href="{% url 'orders:order_detail' order.id %}" class="text-blue-600 hover:text-blue-700 font-medium">Track →</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Pending Orders Alert -->
+                {% if pending_orders %}
+                <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 mb-6 border border-amber-100">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-amber-600"></i>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="font-semibold text-gray-900 text-sm">Pending Orders</h3>
+                            <p class="text-xs text-gray-600 mt-1">{{ pending_orders|length }} order{{ pending_orders|length|pluralize }} awaiting processing</p>
+                            <div class="mt-3 space-y-2">
+                                {% for order in pending_orders %}
+                                <div class="flex items-center justify-between bg-white rounded-lg p-2 text-xs">
+                                    <span class="font-medium text-gray-700">#{{ order.order_number }}</span>
+                                    <span class="text-gray-500">₦{{ order.total|floatformat:0 }}</span>
+                                    <span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-medium">{{ order.get_status_display }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <a href="{% url 'dashboard:customer_orders' %}" class="action-card bg-white rounded-xl p-4 text-center border border-gray-100 hover:border-scent-blue">
+                        <div class="w-12 h-12 rounded-full bg-scent-blue/10 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-history text-scent-blue"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">Order History</p>
+                    </a>
+                    <a href="{% url 'dashboard:customer_profile' %}" class="action-card bg-white rounded-xl p-4 text-center border border-gray-100 hover:border-scent-blue">
+                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-user-edit text-green-600"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">Edit Profile</p>
+                    </a>
+                    <a href="{% url 'dashboard:customer_addresses' %}" class="action-card bg-white rounded-xl p-4 text-center border border-gray-100 hover:border-scent-blue">
+                        <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-map-marked-alt text-purple-600"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">Manage Addresses</p>
+                    </a>
+                    <a href="{% url 'store:product_list' %}" class="action-card bg-white rounded-xl p-4 text-center border border-gray-100 hover:border-amber-500">
+                        <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-store text-amber-600"></i>
+                        </div>
+                        <p class="text-xs font-medium text-gray-700">Browse Shop</p>
+                    </a>
+                </div>
+
+                <!-- Recent Orders Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4 sm:mb-5">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900">Recent Orders</h2>
+                        <a href="{% url 'dashboard:customer_orders' %}" class="text-scent-blue hover:text-amber-600 text-xs sm:text-sm font-medium transition">
+                            View All <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    {% if recent_orders %}
+                    <!-- Mobile Card View -->
+                    <div class="space-y-3 md:hidden">
+                        {% for order in recent_orders %}
+                        <div class="border border-gray-100 rounded-lg p-3 hover:border-scent-blue/30 transition">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">#{{ order.order_number }}</p>
+                                    <p class="text-xs text-gray-400">{{ order.created_at|date:"M d, Y" }}</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium 
+                                    {% if order.status == 'delivered' %}bg-green-50 text-green-700
+                                    {% elif order.status == 'shipped' %}bg-blue-50 text-blue-700
+                                    {% elif order.status == 'processing' or order.status == 'confirmed' %}bg-amber-50 text-amber-700
+                                    {% elif order.status == 'cancelled' %}bg-red-50 text-red-700
+                                    {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">₦{{ order.total|floatformat:2 }}</p>
+                                    <p class="text-[10px] text-gray-400">{{ order.items.count }} item{{ order.items.count|pluralize }}</p>
+                                </div>
+                                <a href="{% url 'orders:order_detail' order.id %}" class="text-scent-blue text-xs font-medium hover:text-amber-600">
+                                    View Details <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Desktop Table View -->
+                    <div class="overflow-x-auto hidden md:block">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-100">
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Items</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                {% for order in recent_orders %}
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-4 py-4">
+                                        <span class="text-sm font-semibold text-gray-900">#{{ order.order_number }}</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500">{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                                    <td class="px-4 py-4 text-sm font-semibold text-gray-900">₦{{ order.total|floatformat:2 }}</td>
+                                    <td class="px-4 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                                            {% if order.status == 'delivered' %}bg-green-50 text-green-700
+                                            {% elif order.status == 'shipped' %}bg-blue-50 text-blue-700
+                                            {% elif order.status == 'processing' or order.status == 'confirmed' %}bg-amber-50 text-amber-700
+                                            {% elif order.status == 'cancelled' %}bg-red-50 text-red-700
+                                            {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                            {% if order.status == 'shipped' %}<i class="fas fa-truck mr-1 text-[10px]"></i>{% endif %}
+                                            {% if order.status == 'delivered' %}<i class="fas fa-check mr-1 text-[10px]"></i>{% endif %}
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-right">
+                                        <a href="{% url 'orders:order_detail' order.id %}" class="text-scent-blue hover:text-amber-600 text-sm font-medium transition">
+                                            View <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shopping-bag text-gray-300 text-3xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">No orders yet</h3>
+                        <p class="text-gray-500 text-sm mb-4">When you place an order, it will appear here.</p>
+                        <a href="{% url 'store:product_list' %}" class="inline-flex items-center px-5 py-2.5 bg-scent-blue text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition">
+                            <i class="fas fa-shopping-cart mr-2 text-amber-500"></i> Start Shopping
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Wishlist Preview -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-4 sm:mb-5">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900">
+                            <i class="fas fa-heart text-red-400 mr-2"></i>My Wishlist
+                        </h2>
+                        <a href="{% url 'dashboard:customer_wishlist' %}" class="text-scent-blue hover:text-amber-600 text-xs sm:text-sm font-medium transition">
+                            View All <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+
+                    {% if wishlist_items %}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                        {% for product in wishlist_items %}
+                        <div class="group border border-gray-100 rounded-xl overflow-hidden hover:border-scent-blue/30 hover:shadow-md transition">
+                            <a href="{{ product.get_absolute_url }}" class="block relative">
+                                {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-32 sm:h-40 object-cover group-hover:scale-105 transition-transform duration-300">
+                                {% else %}
+                                <div class="w-full h-32 sm:h-40 bg-gray-100 flex items-center justify-center">
+                                    <i class="fas fa-spray-can text-gray-300 text-2xl"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+                            <div class="p-3">
+                                <a href="{{ product.get_absolute_url }}" class="block">
+                                    <h3 class="font-medium text-gray-900 text-xs sm:text-sm truncate hover:text-scent-blue transition">{{ product.name }}</h3>
+                                </a>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-sm font-bold text-scent-blue">₦{{ product.price|floatformat:0 }}</span>
+                                    <form action="{% url 'cart:add' product.id %}" method="post" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="w-7 h-7 rounded-full bg-scent-blue/10 flex items-center justify-center hover:bg-scent-blue hover:text-white text-scent-blue transition" title="Add to cart">
+                                            <i class="fas fa-cart-plus text-xs"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-10">
+                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-heart text-red-200 text-2xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 text-sm mb-1">Your wishlist is empty</h3>
+                        <p class="text-gray-400 text-xs mb-4">Save your favorite perfumes for later!</p>
+                        <a href="{% url 'store:product_list' %}" class="inline-flex items-center text-scent-blue text-sm font-medium hover:text-amber-600 transition">
+                            Browse Products <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Account Summary Cards (Mobile Loyalty) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 sm:hidden">
+                    <!-- Mobile Loyalty Card -->
+                    <div class="loyalty-card rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-300">Loyalty Points</span>
+                            <i class="fas fa-crown text-amber-500 text-sm"></i>
+                        </div>
+                        <p class="text-2xl font-bold text-amber-500">{{ user.loyalty_points|default:0 }}</p>
+                        <p class="text-xs text-gray-400">{{ user.loyalty_tier|default:"Explorer" }} Member</p>
+                    </div>
+
+                    <!-- Mobile Help Card -->
+                    <div class="bg-white rounded-xl border border-gray-100 p-4">
+                        <h4 class="font-semibold text-gray-900 text-sm mb-2">Need Help?</h4>
+                        <a href="mailto:support@sceanicollections.com" class="flex items-center text-xs text-gray-500">
+                            <i class="fas fa-envelope mr-2 text-amber-500"></i> support@sceanicollections.com
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+<!-- Feedback Popup Modal -->
+<div id="feedbackModal" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeFeedbackModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-modalIn overflow-hidden">
+            <!-- Success State (Hidden initially) -->
+            <div id="feedbackSuccess" class="hidden p-8 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-heart text-green-500 text-2xl animate-pulse"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
+                <p class="text-gray-600 mb-6">Your feedback helps us serve you better.</p>
+                <button onclick="closeFeedbackModal()" 
+                        class="px-6 py-2.5 bg-scent-blue text-white rounded-lg hover:bg-gray-800 transition font-medium">
+                    Continue
+                </button>
+            </div>
+            
+            <!-- Form State -->
+            <div id="feedbackForm">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-scent-blue to-gray-800 px-6 py-5 text-white relative">
+                    <button onclick="closeFeedbackModal()" 
+                            class="absolute top-4 right-4 text-white/70 hover:text-white transition">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-comment-dots text-scent-blue"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg">How was your experience?</h3>
+                            <p class="text-white/70 text-sm">We'd love to hear from you!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6">
+                    <!-- Star Rating -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Rate your experience</label>
+                        <div class="flex justify-center gap-2" id="starRating">
+                            {% for i in "12345" %}
+                            <button type="button" 
+                                    onclick="setRating({{ i }})" 
+                                    class="star-btn text-3xl text-gray-300 hover:text-amber-400 transition-all transform hover:scale-110 focus:outline-none"
+                                    data-rating="{{ i }}">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <p id="ratingText" class="text-center text-sm text-gray-500 mt-2">Click to rate</p>
+                    </div>
+                    
+                    <!-- Feedback Type (Optional) -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">What's this about?</label>
+                        <select id="feedbackType" 
+                                class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-scent-blue focus:ring-1 focus:ring-scent-blue text-sm">
+                            <option value="checkout_experience">Checkout Experience</option>
+                            <option value="website_usability">Website Usability</option>
+                            <option value="product_selection">Product Selection</option>
+                            <option value="payment_process">Payment Process</option>
+                            <option value="general">General Feedback</option>
+                            <option value="suggestion">Suggestion</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Message -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tell us more (optional)</label>
+                        <textarea id="feedbackMessage" 
+                                  rows="3" 
+                                  class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-scent-blue focus:ring-1 focus:ring-scent-blue text-sm resize-none"
+                                  placeholder="Share your thoughts, suggestions, or concerns..."></textarea>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button onclick="submitFeedback()" 
+                            id="submitFeedbackBtn"
+                            class="w-full py-3 bg-scent-blue text-white rounded-lg hover:bg-gray-800 transition font-medium flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Feedback
+                    </button>
+                    
+                    <!-- Skip Option -->
+                    <button onclick="closeFeedbackModal()" 
+                            class="w-full mt-3 py-2 text-gray-500 hover:text-gray-700 transition text-sm">
+                        Maybe later
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .animate-modalIn {
+        animation: modalIn 0.3s ease-out;
+    }
+    
+    .star-btn.active {
+        color: #F59E0B;
+        transform: scale(1.1);
+    }
+    
+    .star-btn.active i {
+        filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5));
+    }
+</style>
+
+<script>
+let selectedRating = 0;
+const ratingTexts = {
+    1: 'Poor - We\'ll do better',
+    2: 'Fair - Room for improvement',
+    3: 'Good - Thanks!',
+    4: 'Very Good - We\'re glad!',
+    5: 'Excellent - You made our day!'
+};
+
+function setRating(rating) {
+    selectedRating = rating;
+    const stars = document.querySelectorAll('.star-btn');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+    document.getElementById('ratingText').textContent = ratingTexts[rating];
+}
+
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    document.body.style.overflow = '';
+    // Store that user has seen/dismissed the modal
+    localStorage.setItem('feedbackModalShown_{{ order.id }}', 'true');
+}
+
+function submitFeedback() {
+    const btn = document.getElementById('submitFeedbackBtn');
+    const originalContent = btn.innerHTML;
+    
+    // Show loading state
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    btn.disabled = true;
+    
+    const data = {
+        order_id: {{ order.id }},
+        rating: selectedRating || null,
+        feedback_type: document.getElementById('feedbackType').value,
+        message: document.getElementById('feedbackMessage').value,
+        customer_name: '{{ order.shipping_full_name|escapejs }}',
+        customer_email: '{{ order.customer_email|escapejs }}'
+    };
+    
+    fetch('{% url "feedback:submit_feedback" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success state
+            document.getElementById('feedbackForm').classList.add('hidden');
+            document.getElementById('feedbackSuccess').classList.remove('hidden');
+        } else {
+            alert(data.message || 'Something went wrong. Please try again.');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Unable to submit feedback. Please try again.');
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    });
+}
+
+// Auto-show modal after a delay (only if not shown before)
+document.addEventListener('DOMContentLoaded', function() {
+    const modalShown = localStorage.getItem('feedbackModalShown_{{ order.id }}');
+    if (!modalShown) {
+        setTimeout(openFeedbackModal, 3000); // Show after 3 seconds
+    }
+});
+</script>

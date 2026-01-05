@@ -1,0 +1,35 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Welcome to {{ site_name }}{% endblock %}
+
+{% block content %}
+<h2 style="color: #1a237e; margin-bottom: 20px;">Welcome, {{ user_name }}! 🎉</h2>
+
+<p>Thank you for creating an account with <strong>{{ site_name }}</strong>. We're thrilled to have you join our community of fragrance enthusiasts!</p>
+
+<div class="highlight-box">
+    <p style="margin: 0;"><strong>What's next?</strong></p>
+    <ul style="margin: 10px 0 0; padding-left: 20px;">
+        <li>Browse our exclusive collection of premium fragrances</li>
+        <li>Discover scents crafted with Nigerian heritage</li>
+        <li>Enjoy special member-only discounts</li>
+    </ul>
+</div>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/store/" class="btn">Start Shopping</a>
+</p>
+
+<p>As a welcome gift, enjoy <strong>10% off</strong> your first order with code:</p>
+
+<div style="background-color: #1a237e; color: #ffffff; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+    <span style="font-size: 24px; font-weight: bold; letter-spacing: 3px;">WELCOME10</span>
+</div>
+
+<p>If you have any questions, our team is here to help. Simply reply to this email or visit our support center.</p>
+
+<p style="margin-top: 30px;">
+    Warm regards,<br>
+    <strong>The {{ site_name }} Team</strong>
+</p>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ - SceaniCollections{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-dark-bg transition-colors">
+    <!-- Hero Banner -->
+    <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-amber-900 text-white py-12 px-4 md:py-24">
+        <div class="container mx-auto text-center">
+            <h1 class="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 md:mb-6 tracking-wide leading-tight">Frequently Asked Questions</h1>
+            <p class="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 max-w-2xl mx-auto font-body leading-relaxed px-2">Find answers to common questions about our products, shipping, and more.</p>
+        </div>
+    </div>
+    
+    <div class="container mx-auto px-4 py-8 md:py-16">
+        <div class="max-w-4xl mx-auto">
+            {% if page and page.content %}
+            <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 md:p-12">
+                <div class="prose prose-lg max-w-none dark:prose-invert">
+                    {{ page.content|safe }}
+                </div>
+            </div>
+            {% else %}
+            <!-- Default FAQ Content -->
+            <div class="space-y-4 sm:space-y-6">
+                <!-- Orders & Shipping -->
+                <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-amber-500 px-4 sm:px-6 py-3 sm:py-4">
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-heading font-bold text-white flex items-center">
+                            <i class="fas fa-truck mr-2 sm:mr-3 text-base sm:text-lg"></i>Orders & Shipping
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-4 sm:px-6 py-3 sm:py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition active:bg-gray-100 dark:active:bg-gray-700">
+                                <span class="font-semibold text-gray-900 dark:text-white text-sm sm:text-base md:text-lg pr-4">How long does shipping take?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform flex-shrink-0"></i>
+                            </button>
+                            <div class="faq-answer hidden px-4 sm:px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Delivery within Lagos takes 1-2 business days. For other states in Nigeria, delivery takes 3-5 business days. You'll receive tracking information once your order ships.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">Do you offer free shipping?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">Yes! We offer free shipping on orders over ₦50,000. Orders below this amount have a flat shipping fee of ₦2,500 within Lagos and ₦3,500 for other states.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">Can I track my order?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">Yes! Once your order ships, you'll receive an email with tracking information. You can also track your order by logging into your account and viewing your order history.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Products -->
+                <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-blue-600 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-spray-can mr-3"></i>Products
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">Are your perfumes authentic?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">Absolutely! We guarantee 100% authenticity on all our products. Every fragrance is sourced directly from authorized distributors and comes with original packaging and batch codes.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">What's the difference between EDT and EDP?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">EDT (Eau de Toilette) contains 5-15% fragrance concentration and typically lasts 4-6 hours. EDP (Eau de Parfum) has 15-20% concentration and lasts 6-8 hours or longer. EDP is generally more expensive but offers better longevity.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">How should I store my perfumes?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">Store perfumes in a cool, dry place away from direct sunlight and heat. Avoid storing in bathrooms where humidity fluctuates. Keep the cap tightly closed to prevent evaporation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Returns & Refunds -->
+                <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-green-600 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-undo mr-3"></i>Returns & Refunds
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">What is your return policy?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">We accept returns within 14 days of delivery for unused, sealed products in their original packaging. Once we receive and inspect the returned item, we'll process your refund within 5-7 business days.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">What if I receive a damaged product?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">If your product arrives damaged, please contact us within 48 hours with photos of the damage. We'll arrange a free replacement or full refund immediately.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment -->
+                <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-purple-600 px-6 py-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-credit-card mr-3"></i>Payment
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">What payment methods do you accept?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">We accept card payments (Visa, Mastercard), bank transfers, and pay on delivery (within Lagos only). All online payments are securely processed through Paystack.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <button class="faq-question w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                <span class="font-medium text-gray-900 dark:text-white">Is my payment information secure?</span>
+                                <i class="fas fa-chevron-down text-gray-400 faq-icon transition-transform"></i>
+                            </button>
+                            <div class="faq-answer hidden px-6 pb-4">
+                                <p class="text-gray-600 dark:text-gray-400">Yes! All transactions are encrypted and processed through secure payment gateways. We never store your full card details on our servers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Still Have Questions? -->
+            <div class="mt-8 sm:mt-12 text-center">
+                <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 sm:p-8 inline-block w-full sm:w-auto">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Still have questions?</h3>
+                    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-5 sm:mb-6">Can't find the answer you're looking for? Our support team is here to help!</p>
+                    <a href="{% url 'contact' %}" class="inline-block bg-amber-500 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-amber-600 transition text-sm sm:text-base active:scale-[0.98]">
+                        <i class="fas fa-envelope mr-2"></i>Contact Us
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', function() {
+        const answer = this.nextElementSibling;
+        const icon = this.querySelector('.faq-icon');
+        
+        // Toggle current
+        answer.classList.toggle('hidden');
+        icon.classList.toggle('rotate-180');
+        
+        // Close others in same section
+        this.closest('.faq-item').parentElement.querySelectorAll('.faq-item').forEach(item => {
+            if (item !== this.closest('.faq-item')) {
+                item.querySelector('.faq-answer').classList.add('hidden');
+                item.querySelector('.faq-icon').classList.remove('rotate-180');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% if messages %}
+<div id="flash-messages" class="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full sm:right-1/2 sm:translate-x-1/2 sm:left-1/2 sm:max-w-md">
+    {% for message in messages %}
+    <div class="flash-message animate-slide-in shadow-xl rounded-2xl px-5 py-4 mb-2 backdrop-blur-md bg-white/80 dark:bg-dark-card/80 border border-gray-200 dark:border-dark-border flex items-center gap-3 relative"
+        data-message-type="{{ message.tags }}"
+        role="alert">
+        {% if message.tags == 'success' %}
+            <i class="fas fa-check-circle text-green-500 text-xl"></i>
+        {% elif message.tags == 'error' %}
+            <i class="fas fa-times-circle text-red-500 text-xl"></i>
+        {% elif message.tags == 'warning' %}
+            <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+        {% else %}
+            <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+        {% endif %}
+        <span class="flex-1 font-medium text-gray-900 dark:text-gray-100">{{ message }}</span>
+        <button type="button" class="close-btn text-2xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition absolute top-2 right-3" onclick="this.closest('.flash-message').remove()">
+            &times;
+        </button>
+    </div>
+    {% endfor %}
+</div>
+<style>
+@keyframes slide-in {
+  0% { opacity: 0; transform: translateY(-30px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slide-in {
+  animation: slide-in 0.5s cubic-bezier(.4,2,.6,1) both;
+}
+</style>
+<script>
+// Auto-dismiss after 4.5s
+document.querySelectorAll('.flash-message').forEach(function(msg) {
+  setTimeout(function() {
+    if (msg && msg.parentElement) {
+      msg.style.transition = 'opacity 0.4s, transform 0.4s';
+      msg.style.opacity = 0;
+      msg.style.transform = 'translateY(-20px) scale(0.97)';
+      setTimeout(function() { if (msg.parentElement) msg.remove(); }, 400);
+    }
+  }, 4500);
+});
+</script>
+{% endif %}

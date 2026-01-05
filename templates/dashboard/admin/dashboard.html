@@ -1,0 +1,242 @@
+{% extends 'dashboard/admin/base_admin.html' %}
+{% load static %}
+
+{% block admin_extra_css %}
+<style>
+    .progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Sales -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm">Total Sales</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">₦{{ total_sales|floatformat:0 }}</p>
+                <p class="text-green-600 text-xs mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i> Today: ₦{{ today_sales|floatformat:0 }}
+                </p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-green-100 flex items-center justify-center">
+                <i class="fas fa-money-bill-wave text-green-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm">Total Orders</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_orders }}</p>
+                <p class="text-blue-600 text-xs mt-1">
+                    <i class="fas fa-clock mr-1"></i> Pending: {{ pending_orders }}
+                </p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center">
+                <i class="fas fa-shopping-bag text-blue-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Products -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm">Total Products</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_products }}</p>
+                <div class="flex space-x-3 mt-1">
+                    <span class="text-amber-600 text-xs">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Low: {{ low_stock_products }}
+                    </span>
+                    <span class="text-red-600 text-xs">
+                        <i class="fas fa-times-circle mr-1"></i> Out: {{ out_of_stock_products }}
+                    </span>
+                </div>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-purple-100 flex items-center justify-center">
+                <i class="fas fa-wine-bottle text-purple-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Customers -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm">Total Customers</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_customers }}</p>
+                <p class="text-green-600 text-xs mt-1">
+                    <i class="fas fa-user-plus mr-1"></i> Today: {{ new_customers_today }}
+                </p>
+            </div>
+            <div class="w-11 h-11 rounded-lg bg-amber-100 flex items-center justify-center">
+                <i class="fas fa-users text-amber-600"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Orders -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="flex justify-between items-center p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900">Recent Orders</h2>
+                <a href="{% url 'dashboard:admin_orders' %}" class="text-scent-gold hover:text-amber-600 text-sm font-medium">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+
+            {% if recent_orders_list %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Order</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Customer</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for order in recent_orders_list %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-3">
+                                <a href="{% url 'dashboard:admin_order_detail' order.id %}" class="text-scent-gold hover:text-amber-600 font-medium">
+                                    #{{ order.order_number }}
+                                </a>
+                                <div class="text-xs text-gray-400">{{ order.created_at|date:"M d, H:i" }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ order.customer_name }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-semibold text-gray-900">₦{{ order.total|floatformat:0 }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-medium 
+                                    {% if order.status == 'delivered' %}bg-green-100 text-green-700
+                                    {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
+                                    {% elif order.status == 'processing' %}bg-purple-100 text-purple-700
+                                    {% elif order.status == 'confirmed' %}bg-indigo-100 text-indigo-700
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                                    {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-shopping-bag text-gray-200 text-5xl mb-4"></i>
+                <p class="text-gray-500">No orders yet</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar Content -->
+    <div class="space-y-6">
+        <!-- Best Sellers -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900">Best Sellers</h2>
+            </div>
+            <div class="p-4">
+                {% if best_sellers %}
+                <div class="space-y-3">
+                    {% for product in best_sellers %}
+                    <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                            {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-wine-bottle text-gray-300"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-medium text-gray-900 text-sm truncate">{{ product.name }}</h3>
+                            <p class="text-scent-gold font-bold text-sm">₦{{ product.price|floatformat:0 }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-500">{{ product.purchase_count }} sold</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-chart-line text-gray-200 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm">No sales data yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-900">Quick Actions</h2>
+            </div>
+            <div class="p-4 space-y-2">
+                <a href="/admin/store/product/add/" class="flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition group">
+                    <div class="flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-plus text-blue-600"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 text-sm">Add Product</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600"></i>
+                </a>
+
+                <a href="{% url 'dashboard:admin_orders' %}?status=pending" class="flex items-center justify-between p-3 bg-amber-50 hover:bg-amber-100 rounded-lg transition group">
+                    <div class="flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-clock text-amber-600"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 text-sm">Pending Orders</span>
+                    </div>
+                    {% if pending_orders %}
+                    <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pending_orders }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'dashboard:admin_products' %}?stock=low" class="flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 rounded-lg transition group">
+                    <div class="flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 text-sm">Low Stock</span>
+                    </div>
+                    {% if low_stock_products %}
+                    <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ low_stock_products }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'dashboard:admin_analytics' %}" class="flex items-center justify-between p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition group">
+                    <div class="flex items-center">
+                        <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-pie text-purple-600"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 text-sm">View Analytics</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-purple-600"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

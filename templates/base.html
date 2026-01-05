@@ -1,0 +1,820 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SceaniCollections - Luxury Perfumes{% endblock %}</title>
+    
+    <!-- Theme initialization (prevents flash) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(theme);
+        })();
+    </script>
+
+    <!-- Google Fonts - Great Vibes for Logo & Inter for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- AOS Animate On Scroll CSS -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'scent-blue': '#1a237e',
+                        'scent-gold': '#D4AF37',
+                        'dark-bg': '#0f172a',
+                        'dark-card': '#1e293b',
+                        'dark-border': '#334155',
+                    },
+                    fontFamily: {
+                        'logo': ['Great Vibes', 'cursive'],
+                        'heading': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Hide Django Debug Toolbar button and panel */
+        #djDebug,
+        #djDebugToolbar,
+        .djdt-button,
+        .djdt,
+        .djdt-panelContent,
+        .djdt-toolbar-button,
+        .djdt-toolbar {
+            display: none !important;
+        }
+        
+        /* Improved Typography */
+        body {
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        /* Enhanced Form Visibility */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="search"],
+        input[type="date"],
+        textarea,
+        select {
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            color: #1f2937 !important;
+            background-color: #ffffff !important;
+            border: 2px solid #d1d5db !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
+            outline: none !important;
+        }
+        
+        input::placeholder,
+        textarea::placeholder {
+            color: #9ca3af !important;
+            font-weight: 400 !important;
+        }
+        
+        label {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            margin-bottom: 6px !important;
+            display: block !important;
+        }
+        
+        /* Enhanced buttons */
+        button, .btn {
+            font-weight: 600 !important;
+            font-size: 15px !important;
+        }
+        
+        /* Better paragraph text */
+        p {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #4b5563;
+        }
+        
+        /* Navigation arrows styles */
+        .nav-arrows {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 45;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .nav-arrow-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 35, 126, 0.3);
+        }
+        
+        .nav-arrow-btn:hover {
+            background: linear-gradient(135deg, #283593 0%, #3949ab 100%);
+            border-color: #D4AF37;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(26, 35, 126, 0.4);
+        }
+        
+        .nav-arrow-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-arrow-btn i {
+            font-size: 18px;
+        }
+        
+        .nav-arrow-btn.back-btn {
+            background: linear-gradient(135deg, #D4AF37 0%, #f0c14b 100%);
+            color: #1a237e;
+        }
+        
+        .nav-arrow-btn.back-btn:hover {
+            background: linear-gradient(135deg, #f0c14b 0%, #ffd54f 100%);
+        }
+        
+        /* Theme toggle button */
+        .nav-arrow-btn.theme-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        .nav-arrow-btn.theme-btn:hover {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+        }
+        
+        /* Hide scroll buttons when at top/bottom */
+        .nav-arrow-btn.hidden-btn {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .nav-arrows {
+                right: 8px;
+                gap: 5px;
+                bottom: 80px;
+                top: auto;
+                transform: none;
+            }
+            
+            .nav-arrow-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .nav-arrow-btn i {
+                font-size: 14px;
+            }
+            
+            /* Improved touch targets on mobile */
+            button, a, input[type="submit"], .btn {
+                min-height: 44px;
+            }
+            
+            /* Better mobile spacing */
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            
+            /* Mobile typography */
+            h1 {
+                font-size: 1.75rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            h2 {
+                font-size: 1.5rem !important;
+                line-height: 1.25 !important;
+            }
+            
+            h3 {
+                font-size: 1.25rem !important;
+            }
+            
+            p {
+                font-size: 15px !important;
+                line-height: 1.6 !important;
+            }
+            
+            /* Mobile form inputs */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="tel"],
+            textarea,
+            select {
+                font-size: 16px !important;
+                padding: 14px 16px !important;
+                min-height: 48px;
+            }
+            
+            /* Better mobile cards */
+            .rounded-xl {
+                border-radius: 12px !important;
+            }
+            
+            /* Mobile grid adjustments */
+            .grid-cols-2 {
+                gap: 12px !important;
+            }
+            
+            .grid-cols-3 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .nav-arrows {
+                right: 6px;
+                gap: 4px;
+            }
+            
+            .nav-arrow-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .nav-arrow-btn i {
+                font-size: 12px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            h2 {
+                font-size: 1.25rem !important;
+            }
+            
+            /* Reduce padding on very small screens */
+            .p-8 {
+                padding: 1rem !important;
+            }
+            
+            .p-6 {
+                padding: 0.75rem !important;
+            }
+            
+            .px-8 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            
+            .py-12 {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+        }
+        
+        /* Safe area for notch devices */
+        @supports (padding: max(0px)) {
+            .nav-arrows {
+                right: max(8px, env(safe-area-inset-right));
+                bottom: max(80px, env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Prevent horizontal scroll */
+        body {
+            overflow-x: hidden;
+        }
+        
+        /* Mobile-friendly tap highlight */
+        a, button {
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+        }
+        
+        /* ===== DARK MODE STYLES ===== */
+        
+        /* Dark mode form inputs */
+        .dark input[type="text"],
+        .dark input[type="email"],
+        .dark input[type="password"],
+        .dark input[type="number"],
+        .dark input[type="tel"],
+        .dark input[type="url"],
+        .dark input[type="search"],
+        .dark input[type="date"],
+        .dark textarea,
+        .dark select {
+            color: #f3f4f6 !important;
+            background-color: #1e293b !important;
+            border-color: #475569 !important;
+        }
+        
+        .dark input:focus,
+        .dark textarea:focus,
+        .dark select:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3) !important;
+        }
+        
+        .dark input::placeholder,
+        .dark textarea::placeholder {
+            color: #9ca3af !important;
+        }
+        
+        .dark label {
+            color: #e5e7eb !important;
+        }
+        
+        /* Dark mode paragraphs */
+        .dark p {
+            color: #d1d5db;
+        }
+        
+        /* Dark mode cards */
+        .dark .bg-white {
+            background-color: #1e293b !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #0f172a !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #1e293b !important;
+        }
+        
+        /* Dark mode text colors */
+        .dark .text-gray-900 {
+            color: #f9fafb !important;
+        }
+        
+        .dark .text-gray-800 {
+            color: #f3f4f6 !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #e5e7eb !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #d1d5db !important;
+        }
+        
+        .dark .text-gray-500 {
+            color: #9ca3af !important;
+        }
+        
+        /* Dark mode borders */
+        .dark .border-gray-200,
+        .dark .border-gray-100 {
+            border-color: #334155 !important;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #475569 !important;
+        }
+        
+        .dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+        .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+            border-color: #334155 !important;
+        }
+        
+        /* Dark mode shadows */
+        .dark .shadow-lg,
+        .dark .shadow-xl,
+        .dark .shadow-md {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        /* Dark mode hover states */
+        .dark .hover\:bg-gray-50:hover {
+            background-color: #334155 !important;
+        }
+        
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #334155 !important;
+        }
+        
+        /* Dark mode ring colors */
+        .dark .ring-gray-200 {
+            --tw-ring-color: #475569 !important;
+        }
+        
+        /* Dark mode prose for CMS content */
+        .dark .prose {
+            color: #d1d5db !important;
+        }
+        
+        .dark .prose h1,
+        .dark .prose h2,
+        .dark .prose h3,
+        .dark .prose h4,
+        .dark .prose h5,
+        .dark .prose h6 {
+            color: #f9fafb !important;
+        }
+        
+        .dark .prose a {
+            color: #D4AF37 !important;
+        }
+        
+        .dark .prose strong {
+            color: #f3f4f6 !important;
+        }
+        
+        /* Dark mode dropdown menus */
+        .dark .group-hover\:block {
+            background-color: #1e293b !important;
+        }
+        
+        /* Footer in dark mode */
+        .dark footer {
+            background-color: #0f172a !important;
+        }
+    </style>
+</head>
+
+
+<body class="bg-gray-50 dark:bg-dark-bg font-body text-gray-800 dark:text-gray-200 transition-colors duration-300 {% block body_class %}{% endblock %}">
+    {% if not user.is_authenticated %}
+    {% endif %}
+
+    {% include 'partials/_navbar.html' %}
+
+    {% include 'partials/_messages.html' %}
+
+    <main>
+        {% block content %}
+        {# Example usage: Add data-aos attributes to elements you want to animate #}
+        {# <div data-aos="fade-up">This will fade up on scroll</div> #}
+        {% endblock %}
+    </main>
+
+    {% include 'partials/_footer.html' %}
+
+    <!-- Floating Navigation Arrows (Right Side) -->
+    <div class="nav-arrows" id="navArrows">
+        <!-- Theme Toggle Button -->
+        <button onclick="toggleTheme()" class="nav-arrow-btn theme-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+            <i class="fas fa-sun" id="lightIcon"></i>
+            <i class="fas fa-moon hidden" id="darkIcon"></i>
+        </button>
+        
+        <!-- Back Button -->
+        <button onclick="goBack()" class="nav-arrow-btn back-btn" title="Go Back">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        
+        <!-- Scroll Up Button -->
+        <button onclick="scrollToTop()" class="nav-arrow-btn" id="scrollUpBtn" title="Scroll to Top">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        
+        <!-- Scroll Down Button -->
+        <button onclick="scrollToBottom()" class="nav-arrow-btn" id="scrollDownBtn" title="Scroll to Bottom">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+
+    <!-- Floating Feedback Button (Left Side - Always Visible) -->
+    <button onclick="openGlobalFeedback()" 
+            id="floatingFeedback"
+            class="fixed left-0 top-1/2 -translate-y-1/2 z-50 bg-amber-500 text-scent-blue py-3 px-2 rounded-r-lg shadow-lg hover:bg-amber-400 transition-all duration-300 group"
+            title="Send Feedback">
+        <div class="flex flex-col items-center gap-1">
+            <i class="fas fa-comment-dots text-lg"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tight" style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);">Feedback</span>
+        </div>
+    </button>
+
+    <!-- Floating Tutorial/Help Button (Left Side - Below Feedback) -->
+    <a href="{% url 'tutorial' %}" 
+       id="floatingTutorial"
+       class="fixed left-0 top-[calc(50%+70px)] z-50 bg-scent-blue text-white py-3 px-2 rounded-r-lg shadow-lg hover:bg-indigo-900 transition-all duration-300 group animate-pulse-slow"
+       title="How to Shop - Tutorial">
+        <div class="flex flex-col items-center gap-1">
+            <i class="fas fa-question-circle text-lg text-amber-400 group-hover:text-amber-300"></i>
+            <span class="text-[10px] font-bold uppercase tracking-tight text-amber-400 group-hover:text-amber-300" style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);">Help</span>
+        </div>
+        <!-- Tooltip that appears on hover -->
+        <span class="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+            <i class="fas fa-graduation-cap mr-1 text-amber-400"></i> New here? Learn how to shop!
+        </span>
+    </a>
+
+    <style>
+        @keyframes pulse-slow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+        }
+        /* Stop animation after user has seen it */
+        #floatingTutorial.seen {
+            animation: none;
+        }
+    </style>
+
+    <script>
+        // Stop tutorial button animation after 10 seconds or if user has visited before
+        document.addEventListener('DOMContentLoaded', function() {
+            const tutorialBtn = document.getElementById('floatingTutorial');
+            if (tutorialBtn) {
+                // Check if user has seen the tutorial button before
+                if (localStorage.getItem('tutorialSeen')) {
+                    tutorialBtn.classList.add('seen');
+                } else {
+                    // Stop animation after 10 seconds
+                    setTimeout(function() {
+                        tutorialBtn.classList.add('seen');
+                        localStorage.setItem('tutorialSeen', 'true');
+                    }, 10000);
+                }
+            }
+        });
+    </script>
+
+    <!-- Global Feedback Modal -->
+    {% include 'feedback/_global_feedback_modal.html' %}
+
+    <!-- Floating Cart Button - Hidden for admin/dashboard pages via JS -->
+    <a href="{% url 'cart:detail' %}" 
+       class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 bg-scent-blue text-white p-3 md:p-4 rounded-full shadow-2xl hover:bg-gray-800 transition-all duration-300 group hover:scale-110 border-2 border-amber-500/30 hover:border-amber-500"
+       id="floatingCart"
+       title="View Cart">
+        <div class="relative">
+            <i class="fas fa-shopping-cart text-lg md:text-xl group-hover:text-amber-500 transition-colors"></i>
+            {% if cart_total_items and cart_total_items > 0 %}
+            <span class="absolute -top-3 -right-3 bg-amber-500 text-scent-blue text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-bounce">
+                {{ cart_total_items }}
+            </span>
+            {% endif %}
+        </div>
+        <!-- Tooltip -->
+        <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {% if cart_total_items and cart_total_items > 0 %}
+                {{ cart_total_items }} item{% if cart_total_items != 1 %}s{% endif %} in cart
+            {% else %}
+                Your cart is empty
+            {% endif %}
+        </span>
+    </a>
+
+    <script>
+        // Hide cart button on dashboard pages
+        if (window.location.pathname.startsWith('/dashboard')) {
+            document.getElementById('floatingCart').style.display = 'none';
+        }
+    </script>
+
+    <style>
+        /* Floating Cart Animation */
+        #floatingCart {
+            animation: floatIn 0.5s ease-out;
+        }
+        
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Hide floating cart on cart page and admin/dashboard pages */
+        body.cart-page #floatingCart,
+        body.admin-page #floatingCart {
+            display: none;
+        }
+    </style>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <!-- AOS Animate On Scroll JS -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.AOS) {
+          AOS.init({
+            duration: 900,
+            once: true,
+            easing: 'ease-out-cubic',
+            offset: 60
+          });
+        }
+      });
+    </script>
+    
+    <!-- Navigation Arrows Script -->
+    <script>
+        // Go back to previous page
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+        
+        // Smooth scroll to top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Smooth scroll to bottom
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Update button visibility based on scroll position
+        function updateScrollButtons() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            const scrollUpBtn = document.getElementById('scrollUpBtn');
+            const scrollDownBtn = document.getElementById('scrollDownBtn');
+            
+            if (scrollUpBtn && scrollDownBtn) {
+                // Hide up button when at top
+                if (scrollTop < 100) {
+                    scrollUpBtn.classList.add('hidden-btn');
+                } else {
+                    scrollUpBtn.classList.remove('hidden-btn');
+                }
+                
+                // Hide down button when at bottom
+                if (scrollTop + clientHeight >= scrollHeight - 100) {
+                    scrollDownBtn.classList.add('hidden-btn');
+                } else {
+                    scrollDownBtn.classList.remove('hidden-btn');
+                }
+            }
+        }
+        
+        // Listen for scroll events
+        window.addEventListener('scroll', updateScrollButtons);
+        
+        // Initial check on page load
+        document.addEventListener('DOMContentLoaded', updateScrollButtons);
+    </script>
+    
+    <!-- Theme Toggle Script -->
+    <script>
+        // Toggle between light and dark mode
+        function toggleTheme() {
+            const html = document.documentElement;
+            const lightIcon = document.getElementById('lightIcon');
+            const darkIcon = document.getElementById('darkIcon');
+            
+            if (html.classList.contains('dark')) {
+                // Switch to light mode
+                html.classList.remove('dark');
+                html.classList.add('light');
+                localStorage.setItem('theme', 'light');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            } else {
+                // Switch to dark mode
+                html.classList.remove('light');
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            }
+        }
+        
+        // Initialize theme icons on page load
+        function initThemeIcons() {
+            const html = document.documentElement;
+            const lightIcon = document.getElementById('lightIcon');
+            const darkIcon = document.getElementById('darkIcon');
+            
+            if (html.classList.contains('dark')) {
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            } else {
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            }
+        }
+        
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', initThemeIcons);
+    </script>
+
+    <!-- Newsletter Form Handler -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const newsletterForm = document.getElementById('newsletter-form-footer');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('newsletter-email-footer').value;
+                const messageEl = document.getElementById('newsletter-message-footer');
+                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('source', 'footer');
+                formData.append('csrfmiddlewaretoken', csrfToken);
+                
+                fetch('{% url "store:newsletter_subscribe" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    messageEl.textContent = data.message;
+                    messageEl.className = 'text-xs mt-2 ' + (data.success ? 'text-green-400' : 'text-red-400');
+                    messageEl.classList.remove('hidden');
+                    if (data.success) {
+                        document.getElementById('newsletter-email-footer').value = '';
+                    }
+                })
+                .catch(error => {
+                    messageEl.textContent = 'An error occurred. Please try again.';
+                    messageEl.className = 'text-xs mt-2 text-red-400';
+                    messageEl.classList.remove('hidden');
+                });
+            });
+        }
+    });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

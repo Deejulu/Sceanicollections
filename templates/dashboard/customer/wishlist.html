@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+    .wishlist-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        border-color: #1a237e;
+    }
+    .remove-btn {
+        transition: all 0.2s ease;
+    }
+    .remove-btn:hover {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+    .empty-wishlist {
+        background: linear-gradient(135deg, #fef3f3 0%, #fff5f5 100%);
+    }
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+    .product-image-wrapper img {
+        transition: transform 0.5s ease;
+    }
+    .wishlist-card:hover .product-image-wrapper img {
+        transform: scale(1.08);
+    }
+    .quick-view-overlay {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .wishlist-card:hover .quick-view-overlay {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-4 sm:mb-6">
+            <ol class="flex items-center text-sm text-gray-500">
+                <li><a href="{% url 'dashboard:customer_dashboard' %}" class="hover:text-scent-blue transition">Dashboard</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-gray-900 font-medium">My Wishlist</li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                    <div class="flex items-center mb-4 sm:mb-6">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-scent-blue flex items-center justify-center border-2 border-amber-500/30 flex-shrink-0">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="{{ user.email }}" class="w-full h-full rounded-full object-cover">
+                            {% else %}
+                            <span class="text-lg sm:text-xl font-bold text-amber-500">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 sm:ml-4 overflow-hidden">
+                            <h3 class="font-semibold text-gray-900 truncate text-sm sm:text-base">{{ user.get_full_name|default:user.email }}</h3>
+                            <p class="text-xs text-gray-400">Member since {{ user.date_joined|date:"M Y" }}</p>
+                        </div>
+                    </div>
+
+                    <nav class="space-y-1">
+                        <a href="{% url 'dashboard:customer_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-600 hover:bg-gray-50 hover:text-scent-blue transition">
+                            <i class="fas fa-th-large mr-3 w-5"></i>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'dashboard:customer_orders' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-600 hover:bg-gray-50 hover:text-scent-blue transition">
+                            <i class="fas fa-shopping-bag mr-3 w-5"></i>
+                            My Orders
+                        </a>
+                        <a href="{% url 'dashboard:customer_wishlist' %}" class="flex items-center px-4 py-3 rounded-lg text-sm bg-scent-blue text-white transition">
+                            <i class="fas fa-heart mr-3 text-amber-500 w-5"></i>
+                            Wishlist
+                            {% if wishlist and wishlist.count > 0 %}
+                            <span class="ml-auto bg-amber-500 text-scent-blue text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ wishlist.count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'dashboard:customer_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-600 hover:bg-gray-50 hover:text-scent-blue transition">
+                            <i class="fas fa-user-cog mr-3 w-5"></i>
+                            Profile Settings
+                        </a>
+                        <a href="{% url 'dashboard:customer_addresses' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-600 hover:bg-gray-50 hover:text-scent-blue transition">
+                            <i class="fas fa-map-marker-alt mr-3 w-5"></i>
+                            Addresses
+                        </a>
+                        <div class="pt-4 mt-4 border-t border-gray-100">
+                            <a href="{% url 'accounts:logout' %}" class="flex items-center px-4 py-3 rounded-lg text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition">
+                                <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- Tips Card -->
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-xl p-5 mt-4 hidden lg:block border border-amber-200/50">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-lightbulb text-amber-500 mr-2"></i>
+                        <h4 class="font-semibold text-gray-900 text-sm">Pro Tip</h4>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Add items to your wishlist while browsing and come back anytime to purchase them. You'll never lose track of your favorite scents!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <!-- Page Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-heart text-red-400 mr-3"></i>
+                            My Wishlist
+                        </h1>
+                        <p class="text-gray-500 text-sm mt-1">
+                            {% if wishlist and wishlist_products %}
+                                {{ wishlist_products|length }} item{{ wishlist_products|length|pluralize }} saved
+                            {% else %}
+                                Your saved items will appear here
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mt-3 sm:mt-0">
+                        <a href="{% url 'store:product_list' %}" class="inline-flex items-center px-4 py-2 bg-scent-blue text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition">
+                            <i class="fas fa-plus mr-2 text-amber-500"></i> Browse Products
+                        </a>
+                    </div>
+                </div>
+
+                {% if wishlist_products %}
+                <!-- Wishlist Actions Bar -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-info-circle text-scent-blue mr-2"></i>
+                        <span>Click the heart icon to remove items from your wishlist</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="addAllToCart()" class="px-4 py-2 bg-amber-500 text-scent-blue rounded-lg text-sm font-medium hover:bg-amber-400 transition flex items-center">
+                            <i class="fas fa-cart-plus mr-2"></i> Add All to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wishlist Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {% for product in wishlist_products %}
+                    <div class="wishlist-card bg-white rounded-xl overflow-hidden" data-product-id="{{ product.id }}">
+                        <!-- Product Image -->
+                        <div class="product-image-wrapper relative">
+                            <a href="{{ product.get_absolute_url }}">
+                                {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-48 sm:h-56 object-cover">
+                                {% else %}
+                                <div class="w-full h-48 sm:h-56 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                                    <i class="fas fa-spray-can text-gray-300 text-4xl"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+                            
+                            <!-- Remove from Wishlist Button -->
+                            <form action="{% url 'dashboard:wishlist_remove' product.id %}" method="post" class="absolute top-3 right-3">
+                                {% csrf_token %}
+                                <button type="submit" class="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition" title="Remove from wishlist">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </form>
+
+                            <!-- Stock Badge -->
+                            {% if product.stock_quantity > 0 %}
+                            <span class="absolute top-3 left-3 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                                In Stock
+                            </span>
+                            {% else %}
+                            <span class="absolute top-3 left-3 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full">
+                                Out of Stock
+                            </span>
+                            {% endif %}
+
+                            <!-- Quick View Overlay -->
+                            <div class="quick-view-overlay absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <a href="{{ product.get_absolute_url }}" class="px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
+                                    <i class="fas fa-eye mr-2"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="p-4">
+                            <!-- Category -->
+                            {% if product.category %}
+                            <p class="text-xs text-amber-600 font-medium mb-1">{{ product.category.name }}</p>
+                            {% endif %}
+
+                            <!-- Product Name -->
+                            <a href="{{ product.get_absolute_url }}">
+                                <h3 class="font-semibold text-gray-900 hover:text-scent-blue transition line-clamp-2 text-sm sm:text-base mb-2">
+                                    {{ product.name }}
+                                </h3>
+                            </a>
+
+                            <!-- Rating -->
+                            <div class="flex items-center mb-3">
+                                <div class="flex text-amber-400 text-xs">
+                                    {% for i in "12345" %}
+                                    <i class="fas fa-star{% if forloop.counter > product.average_rating|default:0 %} text-gray-200{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-xs text-gray-400 ml-2">({{ product.reviews.count|default:0 }})</span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    {% if product.compare_price and product.compare_price > product.price %}
+                                    <span class="text-xs text-gray-400 line-through">₦{{ product.compare_price|floatformat:0 }}</span>
+                                    <span class="ml-1 text-xs text-green-600 font-medium">
+                                        {% widthratio product.price product.compare_price 100 as discount %}
+                                        {{ 100|add:"-"|add:discount }}% OFF
+                                    </span>
+                                    {% endif %}
+                                    <p class="text-lg font-bold text-scent-blue">₦{{ product.price|floatformat:0 }}</p>
+                                </div>
+                                {% if product.size %}
+                                <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{{ product.size }}</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Add to Cart Button -->
+                            {% if product.stock_quantity > 0 %}
+                            <form action="{% url 'cart:add' product.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="w-full py-2.5 bg-scent-blue text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart mr-2 text-amber-500"></i> Add to Cart
+                                </button>
+                            </form>
+                            {% else %}
+                            <button disabled class="w-full py-2.5 bg-gray-200 text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed flex items-center justify-center">
+                                <i class="fas fa-times-circle mr-2"></i> Out of Stock
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <!-- Empty Wishlist State -->
+                <div class="empty-wishlist rounded-2xl p-8 sm:p-12 text-center">
+                    <div class="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-heart text-red-200 text-4xl"></i>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Your Wishlist is Empty</h2>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">
+                        Start adding your favorite perfumes to your wishlist. Click the heart icon on any product to save it here!
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <a href="{% url 'store:product_list' %}" class="inline-flex items-center justify-center px-6 py-3 bg-scent-blue text-white rounded-lg font-medium hover:bg-opacity-90 transition">
+                            <i class="fas fa-shopping-bag mr-2 text-amber-500"></i> Browse All Products
+                        </a>
+                        <a href="{% url 'home' %}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+                            <i class="fas fa-home mr-2"></i> Back to Home
+                        </a>
+                    </div>
+
+                    <!-- Suggested Categories -->
+                    <div class="mt-10 pt-8 border-t border-red-100">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">Popular Categories</h3>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <a href="{% url 'store:product_list' %}?category=men" class="px-4 py-2 bg-white rounded-full text-sm text-gray-600 hover:bg-scent-blue hover:text-white transition shadow-sm">
+                                <i class="fas fa-male mr-1"></i> Men's Fragrances
+                            </a>
+                            <a href="{% url 'store:product_list' %}?category=women" class="px-4 py-2 bg-white rounded-full text-sm text-gray-600 hover:bg-scent-blue hover:text-white transition shadow-sm">
+                                <i class="fas fa-female mr-1"></i> Women's Fragrances
+                            </a>
+                            <a href="{% url 'store:product_list' %}?category=unisex" class="px-4 py-2 bg-white rounded-full text-sm text-gray-600 hover:bg-scent-blue hover:text-white transition shadow-sm">
+                                <i class="fas fa-star mr-1"></i> Unisex
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add all wishlist items to cart
+function addAllToCart() {
+    const cards = document.querySelectorAll('.wishlist-card');
+    const forms = [];
+    
+    cards.forEach(card => {
+        const form = card.querySelector('form[action*="cart/add"]');
+        if (form) {
+            forms.push(form);
+        }
+    });
+    
+    if (forms.length === 0) {
+        alert('No items to add to cart.');
+        return;
+    }
+    
+    // Submit forms sequentially (simple approach)
+    if (confirm(`Add all ${forms.length} items to your cart?`)) {
+        forms[0].submit();
+    }
+}
+
+// Remove animation
+document.querySelectorAll('.wishlist-card form[action*="wishlist_remove"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const card = this.closest('.wishlist-card');
+        card.style.opacity = '0.5';
+        card.style.transform = 'scale(0.95)';
+    });
+});
+</script>
+{% endblock %}

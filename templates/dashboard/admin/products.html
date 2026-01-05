@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-card { transition: all 0.3s ease; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .stock-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+    .filter-btn.active { background-color: #D4AF37; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Product Management</h1>
+                <p class="text-gray-500 text-sm mt-1">Manage your product catalog and inventory</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <a href="{% url 'dashboard:admin_product_add' %}" class="inline-flex items-center px-4 py-2 bg-scent-gold text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition">
+                    <i class="fas fa-plus mr-2"></i> Add Product
+                </a>
+                <a href="{% url 'dashboard:admin_categories' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+                    <i class="fas fa-tags mr-2"></i> Categories
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                <!-- Product Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Total Products</p>
+                                <p class="text-2xl font-bold text-gray-900">{{ total_products }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-wine-bottle text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">In Stock</p>
+                                <p class="text-2xl font-bold text-green-600">{{ in_stock_count }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Low Stock</p>
+                                <p class="text-2xl font-bold text-amber-600">{{ low_stock_count }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Out of Stock</p>
+                                <p class="text-2xl font-bold text-red-600">{{ out_of_stock_count }}</p>
+                            </div>
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-times text-red-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters & Search -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <!-- Search -->
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text" id="productSearch" placeholder="Search products..." 
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <!-- Filter Buttons -->
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{% url 'dashboard:admin_products' %}" 
+                               class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if not stock_filter %}active{% endif %}">
+                                All
+                            </a>
+                            <a href="{% url 'dashboard:admin_products' %}?stock=in" 
+                               class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if stock_filter == 'in' %}active{% endif %}">
+                                In Stock
+                            </a>
+                            <a href="{% url 'dashboard:admin_products' %}?stock=low" 
+                               class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if stock_filter == 'low' %}active{% endif %}">
+                                Low Stock
+                            </a>
+                            <a href="{% url 'dashboard:admin_products' %}?stock=out" 
+                               class="filter-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 {% if stock_filter == 'out' %}active{% endif %}">
+                                Out of Stock
+                            </a>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <select onchange="window.location.href=this.value" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                            <option value="{% url 'dashboard:admin_products' %}">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{% url 'dashboard:admin_products' %}?category={{ cat.id }}" {% if category_filter == cat.id|stringformat:"i" %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                {% if products %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {% for product in products %}
+                    <div class="product-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-name="{{ product.name|lower }}">
+                        <!-- Product Image -->
+                        <div class="relative aspect-square bg-gray-100">
+                            {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-wine-bottle text-gray-300 text-4xl"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Stock Badge -->
+                            <div class="absolute top-3 left-3">
+                                {% if product.stock_quantity == 0 %}
+                                <span class="stock-badge bg-red-100 text-red-700">Out of Stock</span>
+                                {% elif product.stock_quantity <= 5 %}
+                                <span class="stock-badge bg-amber-100 text-amber-700">Low Stock ({{ product.stock_quantity }})</span>
+                                {% else %}
+                                <span class="stock-badge bg-green-100 text-green-700">In Stock ({{ product.stock_quantity }})</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="absolute top-3 right-3 flex flex-col space-y-2">
+                                <a href="{% url 'dashboard:admin_product_edit' product.id %}" 
+                                   class="w-8 h-8 bg-white rounded-lg shadow flex items-center justify-center text-gray-600 hover:text-scent-gold transition" title="Edit">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </a>
+                                <a href="{% url 'store:product_detail' product.slug %}" target="_blank"
+                                   class="w-8 h-8 bg-white rounded-lg shadow flex items-center justify-center text-gray-600 hover:text-blue-600 transition" title="View">
+                                    <i class="fas fa-eye text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-gray-900 truncate">{{ product.name }}</h3>
+                                    <p class="text-xs text-gray-500">{{ product.category.name }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-lg font-bold text-scent-gold">₦{{ product.price|floatformat:0 }}</p>
+                                    {% if product.compare_at_price %}
+                                    <p class="text-xs text-gray-400 line-through">₦{{ product.compare_at_price|floatformat:0 }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-500">
+                                        <i class="fas fa-shopping-cart mr-1"></i> {{ product.purchase_count }} sold
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        <i class="fas fa-eye mr-1"></i> {{ product.view_count }} views
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Stock Update -->
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <form action="{% url 'dashboard:admin_update_stock' product.id %}" method="POST" class="flex items-center space-x-2">
+                                    {% csrf_token %}
+                                    <input type="number" name="stock" value="{{ product.stock_quantity }}" min="0" 
+                                           class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-scent-gold/20 focus:border-scent-gold">
+                                    <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+                                        Update
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                <div class="flex items-center justify-center space-x-2">
+                    {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}{% if stock_filter %}&stock={{ stock_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" 
+                       class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Previous</a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 text-sm text-gray-500">
+                        Page {{ products.number }} of {{ products.paginator.num_pages }}
+                    </span>
+                    
+                    {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}{% if stock_filter %}&stock={{ stock_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}" 
+                       class="px-4 py-2 bg-scent-gold text-white rounded-lg text-sm hover:bg-amber-600">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 text-center py-16">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-wine-bottle text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No Products Found</h3>
+                    <p class="text-gray-500 mb-6">{% if stock_filter or category_filter %}No products match your filters.{% else %}Start by adding your first product.{% endif %}</p>
+                    <a href="{% url 'dashboard:admin_product_add' %}" class="inline-flex items-center px-4 py-2 bg-scent-gold text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition">
+                        <i class="fas fa-plus mr-2"></i> Add Product
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('productSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    document.querySelectorAll('.product-card').forEach(card => {
+        const name = card.dataset.name;
+        card.style.display = name.includes(searchTerm) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

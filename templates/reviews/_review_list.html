@@ -1,0 +1,267 @@
+{% load static %}
+
+{# Review List Component - shows reviews for a product #}
+<div id="reviews-section" class="mt-8">
+    {# Rating Summary #}
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {# Overall Rating #}
+            <div class="text-center md:text-left">
+                <div class="text-5xl font-bold text-gray-900">{{ product.average_rating|floatformat:1 }}</div>
+                <div class="flex items-center justify-center md:justify-start mt-2">
+                    {% for i in "12345" %}
+                        {% with i|add:0 as star_num %}
+                            {% if product.average_rating >= star_num %}
+                                <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            {% elif product.average_rating >= star_num|add:-0.5 %}
+                                <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                    <defs>
+                                        <linearGradient id="half-star-{{ forloop.counter }}">
+                                            <stop offset="50%" stop-color="currentColor"/>
+                                            <stop offset="50%" stop-color="#D1D5DB"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path fill="url(#half-star-{{ forloop.counter }})" d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5 text-gray-300 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+                <div class="text-sm text-gray-500 mt-1">Based on {{ product.review_count }} review{{ product.review_count|pluralize }}</div>
+            </div>
+            
+            {# Rating Breakdown #}
+            <div class="flex-1 max-w-md">
+                {% for rating, data in rating_breakdown.items reversed %}
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-sm text-gray-600 w-12">{{ rating }} star{{ rating|pluralize }}</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-yellow-400 h-2.5 rounded-full" style="width: {{ data.percentage }}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-500 w-12 text-right">{{ data.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    {# Sorting & Filters #}
+    <div class="flex flex-wrap gap-4 mb-6">
+        <select id="review-sort" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+            <option value="highest" {% if sort_by == 'highest' %}selected{% endif %}>Highest Rated</option>
+            <option value="lowest" {% if sort_by == 'lowest' %}selected{% endif %}>Lowest Rated</option>
+            <option value="helpful" {% if sort_by == 'helpful' %}selected{% endif %}>Most Helpful</option>
+        </select>
+        
+        <select id="review-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+            <option value="">All Ratings</option>
+            {% for i in "54321" %}
+            <option value="{{ i }}" {% if rating_filter|stringformat:"s" == i %}selected{% endif %}>{{ i }} Star{{ i|add:0|pluralize }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {# Reviews List #}
+    <div id="reviews-list" class="space-y-6">
+        {% for review in reviews %}
+        <div class="bg-white rounded-lg shadow p-6" data-review-id="{{ review.id }}">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20">
+                                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                    </svg>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% if review.verified_purchase %}
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">Verified Purchase</span>
+                        {% endif %}
+                    </div>
+                    {% if review.title %}
+                    <h4 class="font-semibold text-gray-900 mt-2">{{ review.title }}</h4>
+                    {% endif %}
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ review.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+            
+            <p class="text-gray-700 mt-3">{{ review.comment }}</p>
+            
+            {# Perfume-specific ratings #}
+            {% if review.longevity_rating or review.sillage_rating or review.value_rating %}
+            <div class="flex flex-wrap gap-4 mt-4 text-sm">
+                {% if review.longevity_rating %}
+                <div class="flex items-center gap-1">
+                    <span class="text-gray-500">Longevity:</span>
+                    <span class="font-medium">{{ review.longevity_rating }}/5</span>
+                </div>
+                {% endif %}
+                {% if review.sillage_rating %}
+                <div class="flex items-center gap-1">
+                    <span class="text-gray-500">Sillage:</span>
+                    <span class="font-medium">{{ review.sillage_rating }}/5</span>
+                </div>
+                {% endif %}
+                {% if review.value_rating %}
+                <div class="flex items-center gap-1">
+                    <span class="text-gray-500">Value:</span>
+                    <span class="font-medium">{{ review.value_rating }}/5</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                <div class="text-sm text-gray-600">
+                    By <span class="font-medium">{{ review.user.get_full_name|default:review.user.email|truncatechars:20 }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated and user != review.user %}
+                    <button 
+                        onclick="markHelpful({{ review.id }})"
+                        class="helpful-btn flex items-center gap-1 text-sm text-gray-500 hover:text-pink-600 transition-colors"
+                        data-review-id="{{ review.id }}"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                        </svg>
+                        <span class="helpful-count">{{ review.helpful_count }}</span> helpful
+                    </button>
+                    {% else %}
+                    <span class="text-sm text-gray-500">
+                        <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                        </svg>
+                        {{ review.helpful_count }} helpful
+                    </span>
+                    {% endif %}
+                    
+                    {% if user == review.user %}
+                    <button 
+                        onclick="deleteReview({{ review.id }})"
+                        class="text-sm text-red-500 hover:text-red-700 transition-colors"
+                    >
+                        Delete
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow p-8 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No reviews yet</h3>
+            <p class="text-gray-500">Be the first to share your thoughts about this product!</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {# Pagination #}
+    {% if reviews.has_other_pages %}
+    <div class="flex justify-center mt-8">
+        <nav class="flex items-center gap-2">
+            {% if reviews.has_previous %}
+            <button 
+                onclick="loadReviews({{ reviews.previous_page_number }})"
+                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+                Previous
+            </button>
+            {% endif %}
+            
+            <span class="px-4 py-2 text-gray-600">
+                Page {{ reviews.number }} of {{ reviews.paginator.num_pages }}
+            </span>
+            
+            {% if reviews.has_next %}
+            <button 
+                onclick="loadReviews({{ reviews.next_page_number }})"
+                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+                Next
+            </button>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function loadReviews(page = 1) {
+    const sort = document.getElementById('review-sort').value;
+    const filter = document.getElementById('review-filter').value;
+    const url = new URL('{% url "reviews:product_reviews" product.slug %}', window.location.origin);
+    url.searchParams.set('page', page);
+    url.searchParams.set('sort', sort);
+    if (filter) url.searchParams.set('rating', filter);
+    
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('reviews-section').innerHTML = data.html;
+    });
+}
+
+function markHelpful(reviewId) {
+    fetch(`/reviews/${reviewId}/helpful/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const btn = document.querySelector(`[data-review-id="${reviewId}"] .helpful-count`);
+            if (btn) btn.textContent = data.helpful_count;
+        }
+    });
+}
+
+function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete your review?')) return;
+    
+    fetch(`/reviews/${reviewId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const reviewEl = document.querySelector(`[data-review-id="${reviewId}"]`);
+            if (reviewEl) reviewEl.remove();
+            // Reload to update stats
+            loadReviews();
+        }
+    });
+}
+
+// Listen for sort/filter changes
+document.getElementById('review-sort')?.addEventListener('change', () => loadReviews());
+document.getElementById('review-filter')?.addEventListener('change', () => loadReviews());
+</script>

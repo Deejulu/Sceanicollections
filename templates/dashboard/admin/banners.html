@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SceaniCollections Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-6 md:py-8">
+        <!-- Page Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                    <a href="{% url 'dashboard:admin_site_content' %}" class="hover:text-scent-gold transition">Content</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-gray-700">Promotional Banners</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Promotional Banners</h1>
+                <p class="text-gray-500 text-sm mt-1">{{ banners|length }} banners</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="{% url 'dashboard:admin_banner_add' %}" class="inline-flex items-center px-4 py-2 bg-scent-gold text-white rounded-lg font-medium hover:bg-amber-600 transition">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Banner
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 order-2 lg:order-1">
+                {% include 'dashboard/admin/_sidebar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 order-1 lg:order-2">
+                {% if banners %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for banner in banners %}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-4" style="background-color: {{ banner.background_color }};">
+                            <p class="font-medium" style="color: {{ banner.text_color }};">{{ banner.text|default:'No text' }}</p>
+                            {% if banner.subtext %}
+                            <p class="text-sm opacity-80" style="color: {{ banner.text_color }};">{{ banner.subtext }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-bold text-gray-900">{{ banner.name }}</h3>
+                                {% if banner.is_active %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Inactive</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-sm text-gray-500 space-y-1">
+                                <p><i class="fas fa-map-marker-alt w-4 mr-1"></i> {{ banner.get_position_display }}</p>
+                                {% if banner.start_date or banner.end_date %}
+                                <p><i class="fas fa-calendar w-4 mr-1"></i> 
+                                    {% if banner.start_date %}{{ banner.start_date|date:"M d" }}{% endif %}
+                                    {% if banner.start_date and banner.end_date %} - {% endif %}
+                                    {% if banner.end_date %}{{ banner.end_date|date:"M d" }}{% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
+                                <a href="{% url 'dashboard:admin_banner_edit' banner.id %}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{% url 'dashboard:admin_banner_delete' banner.id %}" method="POST" class="inline" onsubmit="return confirm('Delete this banner?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bullhorn text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No banners yet</h3>
+                    <p class="text-gray-500 mb-4">Create promotional banners to showcase offers.</p>
+                    <a href="{% url 'dashboard:admin_banner_add' %}" class="inline-flex items-center px-4 py-2 bg-scent-gold text-white rounded-lg font-medium hover:bg-amber-600 transition">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Banner
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

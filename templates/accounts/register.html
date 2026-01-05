@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }}{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-container {
+        background: #1a237e;
+        min-height: 100vh;
+        position: relative;
+    }
+    .auth-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .auth-card {
+        background: #fff;
+        border: 1.5px solid #e5e7eb;
+        box-shadow: 0 6px 32px rgba(26,35,126,0.08);
+    }
+    .dark .auth-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    .auth-card input, .auth-card select {
+        background: #fafafa;
+        border: 1.5px solid #bdbdbd;
+        color: #1a237e;
+        font-size: 1.08rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    .dark .auth-card input, .dark .auth-card select {
+        background: #232946;
+        color: #f9fafb;
+        border-color: #475569;
+    }
+    .auth-card input:focus, .auth-card select:focus {
+        background: #fff;
+        border-color: #D4AF37;
+        box-shadow: 0 0 0 3px rgba(212,175,55,0.13);
+        outline: none;
+    }
+    .dark .auth-card input:focus, .dark .auth-card select:focus {
+        background: #232946;
+        border-color: #D4AF37;
+        box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
+    }
+    .auth-card label {
+        color: #1a237e;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+    .dark .auth-card label {
+        color: #f9fafb;
+    }
+    .auth-card button, .auth-card .btn, .auth-card input[type="submit"] {
+        background: linear-gradient(90deg, #1a237e 60%, #D4AF37 100%);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.08rem;
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(26,35,126,0.08);
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .auth-card button:hover, .auth-card .btn:hover, .auth-card input[type="submit"]:hover {
+        background: linear-gradient(90deg, #D4AF37 0%, #1a237e 100%);
+        color: #1a237e;
+        box-shadow: 0 4px 16px rgba(212,175,55,0.13);
+    }
+    .dark .auth-card button, .dark .auth-card .btn, .dark .auth-card input[type="submit"] {
+        background: linear-gradient(90deg, #232946 60%, #D4AF37 100%);
+        color: #fff;
+    }
+    .dark .auth-card button:hover, .dark .auth-card .btn:hover, .dark .auth-card input[type="submit"]:hover {
+        background: linear-gradient(90deg, #D4AF37 0%, #232946 100%);
+        color: #232946;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-container flex items-center justify-center py-6 sm:py-10 md:py-12 px-4">
+    <div class="max-w-md w-full relative z-10">
+        <div class="text-center mb-6 sm:mb-10">
+            <a href="{% url 'home' %}" class="inline-block">
+                <div class="flex items-center justify-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-amber-500 flex items-center justify-center">
+                        <i class="fas fa-spray-can text-scent-blue text-sm sm:text-lg"></i>
+                    </div>
+                    <span class="ml-2 sm:ml-3 font-logo font-bold text-2xl sm:text-3xl text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Sceani<span class="text-amber-500">Collections</span></span>
+                </div>
+            </a>
+            <p class="mt-2 sm:mt-3 text-gray-500 text-xs sm:text-sm">Create your account</p>
+        </div>
+        <div class="auth-card rounded-xl shadow-2xl p-5 sm:p-8">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 text-center mb-4 sm:mb-6">Create Account</h2>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="w-full bg-scent-blue text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg hover:bg-gray-800 transition duration-200 mt-4 text-sm sm:text-base">
+                    <i class="fas fa-user-plus mr-2 text-amber-500"></i> Create Account
+                </button>
+            </form>
+            <div class="mt-6 sm:mt-8 mb-4 sm:mb-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-3 sm:px-4 bg-white text-gray-400 uppercase tracking-wide">Already have an account?</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{% url 'accounts:login' %}" class="inline-flex items-center justify-center w-full border border-gray-300 text-gray-700 font-medium py-2.5 sm:py-3 px-4 rounded-lg hover:border-scent-blue hover:bg-scent-blue hover:text-white transition duration-200 text-sm sm:text-base">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign in to your account
+                </a>
+            </div>
+        </div>
+        <div class="mt-6 sm:mt-8 text-center">
+            <a href="{% url 'home' %}" class="text-gray-500 hover:text-white text-xs sm:text-sm transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

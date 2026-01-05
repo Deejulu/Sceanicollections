@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block title %}Checkout - SceaniCollections{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        min-height: 80vh;
+    }
+    
+    .checkout-step {
+        position: relative;
+    }
+    
+    .checkout-step.completed .step-number {
+        background: #1a237e;
+        border-color: #1a237e;
+        color: white;
+    }
+    
+    .checkout-step.active .step-number {
+        background: #D4AF37;
+        border-color: #D4AF37;
+        color: black;
+    }
+    
+    .payment-option {
+        border: 2px solid #e5e7eb;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .payment-option:hover {
+        border-color: #9ca3af;
+    }
+    
+    .payment-option.selected {
+        border-color: #1a237e;
+        background: #fafafa;
+    }
+    
+    .payment-option input[type="radio"] {
+        display: none;
+    }
+    
+    .payment-option input[type="radio"]:checked + .payment-content {
+        opacity: 1;
+    }
+    
+    .form-input {
+        background: #fafafa;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        background: #ffffff;
+        border-color: #1a237e;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        outline: none;
+    }
+    
+    .order-summary-sticky {
+        position: sticky;
+        top: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container bg-gray-50 py-4 md:py-8">
+    <div class="container mx-auto px-3 sm:px-4">
+        <!-- Breadcrumb -->
+        <nav class="mb-4 md:mb-6 hidden sm:block">
+            <ol class="flex items-center text-xs sm:text-sm text-gray-500">
+                <li><a href="{% url 'home' %}" class="hover:text-scent-blue transition">Home</a></li>
+                <li class="mx-2">/</li>
+                <li><a href="{% url 'cart:detail' %}" class="hover:text-scent-blue transition">Cart</a></li>
+                <li class="mx-2">/</li>
+                <li class="text-scent-blue font-medium">Checkout</li>
+            </ol>
+        </nav>
+        
+        <!-- Checkout Steps -->
+        <div class="flex items-center justify-center mb-6 md:mb-10 overflow-x-auto pb-2">
+            <div class="flex items-center min-w-max">
+                <div class="checkout-step completed flex items-center">
+                    <div class="step-number w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs md:text-sm font-medium">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                    <span class="ml-1.5 md:ml-2 text-xs md:text-sm font-medium text-gray-900">Cart</span>
+                </div>
+                <div class="w-8 md:w-16 h-px bg-gray-300 mx-2 md:mx-4"></div>
+                <div class="checkout-step active flex items-center">
+                    <div class="step-number w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs md:text-sm font-medium">2</div>
+                    <span class="ml-1.5 md:ml-2 text-xs md:text-sm font-medium text-gray-900">Checkout</span>
+                </div>
+                <div class="w-8 md:w-16 h-px bg-gray-300 mx-2 md:mx-4"></div>
+                <div class="checkout-step flex items-center">
+                    <div class="step-number w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-xs md:text-sm font-medium text-gray-400">3</div>
+                    <span class="ml-1.5 md:ml-2 text-xs md:text-sm font-medium text-gray-400">Confirm</span>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" id="checkout-form">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+                <!-- Checkout Form -->
+                <div class="lg:col-span-2 space-y-4 md:space-y-6 order-2 lg:order-1">
+                    
+                    <!-- Contact Information -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-scent-blue px-4 sm:px-6 py-3 sm:py-4">
+                            <h2 class="font-semibold text-white flex items-center text-sm sm:text-base">
+                                <i class="fas fa-user mr-2 sm:mr-3 text-amber-500"></i> Contact Information
+                            </h2>
+                        </div>
+                        <div class="p-4 sm:p-4 sm:p-6">
+                            <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Full Name *</label>
+                                    <input type="text" name="full_name" required 
+                                           value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}"
+                                           class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="Enter your full name">
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Email *</label>
+                                        <input type="email" name="email" required 
+                                               value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                                               class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="Enter your email address">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Phone *</label>
+                                        <input type="tel" name="phone" required 
+                                               value="{% if user.is_authenticated %}{{ user.phone_number }}{% endif %}"
+                                               class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="+234 xxx xxx xxxx">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Address -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-scent-blue px-4 sm:px-6 py-3 sm:py-4">
+                            <h2 class="font-semibold text-white flex items-center text-sm sm:text-base">
+                                <i class="fas fa-truck mr-2 sm:mr-3 text-amber-500"></i> Shipping Address
+                            </h2>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Street Address *</label>
+                                    <input type="text" name="address" required 
+                                           class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="123 Main Street">
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">City *</label>
+                                        <input type="text" name="city" required 
+                                               class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="Lagos">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">State *</label>
+                                        <input type="text" name="state" required 
+                                               class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="Lagos State">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Postal Code</label>
+                                        <input type="text" name="postal_code" 
+                                               class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm" placeholder="100001">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Country *</label>
+                                        <select name="country" required class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm">
+                                            <option value="NG" selected>Nigeria</option>
+                                            <option value="GH">Ghana</option>
+                                            <option value="KE">Kenya</option>
+                                            <option value="ZA">South Africa</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Delivery Instructions (Optional)</label>
+                                    <textarea name="notes" rows="2" 
+                                              class="form-input w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg resize-none text-sm" placeholder="Any special instructions..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Method -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-scent-blue px-6 py-4">
+                            <h2 class="font-semibold text-white flex items-center">
+                                <i class="fas fa-shipping-fast mr-3 text-amber-500"></i> Shipping Method
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <label class="payment-option block rounded-lg p-4 cursor-pointer">
+                                <input type="radio" name="shipping_method" value="standard" checked>
+                                <div class="payment-content flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-truck text-gray-400 mr-4"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900 text-sm">Standard Delivery</p>
+                                            <p class="text-xs text-gray-500">3-5 working days (Nationwide)</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-medium text-gray-900">₦2,500</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option block rounded-lg p-4 cursor-pointer">
+                                <input type="radio" name="shipping_method" value="express">
+                                <div class="payment-content flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-rocket text-gray-400 mr-4"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900 text-sm">Express Delivery</p>
+                                            <p class="text-xs text-gray-500">2 working days (Lagos, Benin, Warri)</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-medium text-gray-900">₦5,000</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option block rounded-lg p-4 cursor-pointer">
+                                <input type="radio" name="shipping_method" value="pickup">
+                                <div class="payment-content flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-store text-gray-400 mr-4"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900 text-sm">Store Pickup</p>
+                                            <p class="text-xs text-gray-500">Pick up directly at our store</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-medium text-green-600">FREE</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Method -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-scent-blue px-6 py-4">
+                            <h2 class="font-semibold text-white flex items-center">
+                                <i class="fas fa-credit-card mr-3 text-amber-500"></i> Payment Method
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <label class="payment-option block rounded-lg p-4 cursor-pointer border-2 border-scent-gold bg-amber-50">
+                                <input type="radio" name="payment_method" value="paystack" checked class="hidden">
+                                <div class="payment-content flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                                            <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-900">Pay with Paystack</p>
+                                            <p class="text-sm text-gray-500">Card, Bank Transfer, USSD - All in one</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fab fa-cc-visa text-gray-500 text-xl" title="Visa"></i>
+                                        <i class="fab fa-cc-mastercard text-gray-500 text-xl" title="Mastercard"></i>
+                                        <i class="fas fa-university text-gray-500" title="Bank Transfer"></i>
+                                    </div>
+                                </div>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-3 text-center">
+                                <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+                                Secure payment powered by Paystack. Supports Cards, Bank Transfer & USSD.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="order-summary-sticky space-y-4">
+                        <!-- Order Items -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="bg-scent-blue px-6 py-4">
+                                <div class="flex items-center justify-between text-white">
+                                    <h2 class="font-semibold">Order Summary</h2>
+                                    <a href="{% url 'cart:detail' %}" class="text-amber-500 text-sm hover:underline">Edit</a>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6">
+                                <!-- Cart Items -->
+                                <div class="space-y-4 max-h-64 overflow-y-auto mb-6 pt-2">
+                                    {% for item in cart.items.all %}
+                                    <div class="flex items-start gap-3 pt-1">
+                                        <div class="relative flex-shrink-0">
+                                            {% if item.product.images.first %}
+                                            <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" 
+                                                 class="w-16 h-16 object-cover rounded-lg border border-gray-100">
+                                            {% else %}
+                                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-wine-bottle text-gray-300"></i>
+                                            </div>
+                                            {% endif %}
+                                            <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-scent-blue text-white text-xs rounded-full flex items-center justify-center shadow-sm">
+                                                {{ item.quantity }}
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate">{{ item.product.name }}</p>
+                                            {% if item.variant %}
+                                            <p class="text-xs text-gray-400">{{ item.variant.name }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">₦{{ item.total_price|floatformat:0|intcomma }}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Totals -->
+                                <div class="border-t border-gray-100 pt-4 space-y-3">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Subtotal</span>
+                                        <span class="font-medium">₦{{ cart.subtotal|floatformat:0|intcomma }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Shipping</span>
+                                        <span class="font-medium" id="shipping-cost">₦2,500</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Tax (VAT 7.5%)</span>
+                                        <span class="font-medium">₦{{ cart.subtotal|floatformat:0|intcomma }}</span>
+                                    </div>
+                                    <div class="flex justify-between pt-3 border-t border-gray-100">
+                                        <span class="font-semibold text-gray-900">Total</span>
+                                        <span class="text-xl font-bold text-gray-900" id="order-total">₦{{ cart.subtotal|floatformat:0|intcomma }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Place Order Button -->
+                        <button type="submit" 
+                                class="w-full bg-scent-blue text-white font-semibold py-4 px-6 rounded-lg hover:bg-gray-800 transition flex items-center justify-center">
+                            <i class="fas fa-lock mr-2 text-amber-500"></i> Place Order
+                        </button>
+                        
+                        <!-- Security & Trust -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                            <div class="flex items-center justify-center text-xs text-gray-400 mb-3">
+                                <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                                Your information is secure and encrypted
+                            </div>
+                            <div class="flex items-center justify-center gap-3">
+                                <i class="fab fa-cc-visa text-gray-300 text-xl"></i>
+                                <i class="fab fa-cc-mastercard text-gray-300 text-xl"></i>
+                                <i class="fas fa-lock text-gray-300"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Help -->
+                        <div class="text-center text-sm text-gray-500">
+                            Need help? <a href="#" class="text-scent-blue hover:underline">Contact Support</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment option selection styling
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected class from siblings
+            this.closest('.space-y-3').querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            // Add selected class to this option
+            this.classList.add('selected');
+        });
+        
+        // Mark initially selected options
+        const radio = option.querySelector('input[type="radio"]');
+        if (radio && radio.checked) {
+            option.classList.add('selected');
+        }
+    });
+    
+    // Update shipping cost display
+    const shippingInputs = document.querySelectorAll('input[name="shipping_method"]');
+    const shippingCostDisplay = document.getElementById('shipping-cost');
+    const shippingCosts = {
+        'standard': 2500,
+        'express': 5000,
+        'next_day': 10000,
+        'pickup': 0
+    };
+    
+    shippingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const cost = shippingCosts[this.value];
+            shippingCostDisplay.textContent = cost === 0 ? 'FREE' : '₦' + cost.toLocaleString();
+        });
+    });
+});
+</script>
+{% endblock %}

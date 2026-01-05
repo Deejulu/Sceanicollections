@@ -1,0 +1,50 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Your Order Has Shipped! - #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<h2 style="color: #1a237e; margin-bottom: 20px;">Your Order is On Its Way! 📦</h2>
+
+<p>Hi {{ user_name }},</p>
+
+<p>Great news! Your order <strong>#{{ order.order_number }}</strong> has been shipped and is on its way to you.</p>
+
+<div class="highlight-box">
+    <p style="margin: 0;"><strong>Order Number:</strong> #{{ order.order_number }}</p>
+    {% if tracking_number %}
+    <p style="margin: 5px 0 0;"><strong>Tracking Number:</strong> {{ tracking_number }}</p>
+    {% endif %}
+    {% if shipping_carrier %}
+    <p style="margin: 5px 0 0;"><strong>Carrier:</strong> {{ shipping_carrier }}</p>
+    {% endif %}
+</div>
+
+{% if tracking_number %}
+<p style="text-align: center; margin: 30px 0;">
+    <a href="#" class="btn">Track Your Package</a>
+</p>
+{% endif %}
+
+<h3 style="color: #1a237e; margin-top: 30px;">Shipping To</h3>
+<div style="background-color: #f8f8f8; padding: 15px; border-radius: 8px;">
+    <p style="margin: 0;">
+        {{ order.shipping_name }}<br>
+        {{ order.shipping_address }}<br>
+        {{ order.shipping_city }}, {{ order.shipping_state }}<br>
+        {{ order.shipping_country }}
+    </p>
+</div>
+
+<div style="background-color: #f8f5e6; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+    <p style="margin: 0; font-size: 14px; color: #666666;">
+        📍 <strong>Estimated Delivery:</strong> 3-5 business days
+    </p>
+</div>
+
+<p>If you have any questions about your delivery, please don't hesitate to contact us.</p>
+
+<p style="margin-top: 30px;">
+    Happy shopping!<br>
+    <strong>The {{ site_name }} Team</strong>
+</p>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'emails/base_email.html' %}
+{% load humanize %}
+
+{% block title %}Order Confirmed - #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<h2 style="color: #1a237e; margin-bottom: 20px;">Order Confirmed! ✅</h2>
+
+<p>Hi {{ user_name }},</p>
+
+<p>Thank you for your order! We've received your order and are preparing it for shipment.</p>
+
+<div class="highlight-box">
+    <p style="margin: 0;"><strong>Order Number:</strong> #{{ order.order_number }}</p>
+    <p style="margin: 5px 0 0;"><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+    <p style="margin: 5px 0 0;"><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+</div>
+
+<h3 style="color: #1a237e; margin-top: 30px;">Order Details</h3>
+
+<table class="order-table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th style="text-align: center;">Qty</th>
+            <th style="text-align: right;">Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order_items %}
+        <tr>
+            <td>{{ item.product_name }}</td>
+            <td style="text-align: center;">{{ item.quantity }}</td>
+            <td style="text-align: right;">₦{{ item.total|floatformat:0|intcomma }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2" style="text-align: right;"><strong>Subtotal:</strong></td>
+            <td style="text-align: right;">₦{{ order.subtotal|floatformat:0|intcomma }}</td>
+        </tr>
+        {% if order.discount_amount > 0 %}
+        <tr>
+            <td colspan="2" style="text-align: right; color: #22c55e;"><strong>Discount:</strong></td>
+            <td style="text-align: right; color: #22c55e;">-₦{{ order.discount_amount|floatformat:0|intcomma }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td colspan="2" style="text-align: right;"><strong>Shipping:</strong></td>
+            <td style="text-align: right;">₦{{ order.shipping_fee|floatformat:0|intcomma }}</td>
+        </tr>
+        <tr class="total-row">
+            <td colspan="2" style="text-align: right;"><strong>Total:</strong></td>
+            <td style="text-align: right;"><strong>₦{{ order.total|floatformat:0|intcomma }}</strong></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 style="color: #1a237e; margin-top: 30px;">Shipping Address</h3>
+<div style="background-color: #f8f8f8; padding: 15px; border-radius: 8px;">
+    <p style="margin: 0;">
+        {{ order.shipping_name }}<br>
+        {{ order.shipping_address }}<br>
+        {{ order.shipping_city }}, {{ order.shipping_state }}<br>
+        {{ order.shipping_country }}{% if order.shipping_postal_code %} {{ order.shipping_postal_code }}{% endif %}<br>
+        <strong>Phone:</strong> {{ order.shipping_phone }}
+    </p>
+</div>
+
+<p style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/orders/{{ order.order_number }}/" class="btn">Track Your Order</a>
+</p>
+
+<p>We'll send you another email when your order ships. In the meantime, feel free to reach out if you have any questions.</p>
+
+<p style="margin-top: 30px;">
+    Thank you for shopping with us!<br>
+    <strong>The {{ site_name }} Team</strong>
+</p>
+{% endblock %}

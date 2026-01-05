@@ -1,0 +1,219 @@
+{% load static %}
+
+{# Review Form Component - for adding a new review #}
+<div id="review-form-container" class="bg-white rounded-lg shadow p-6 mb-8">
+    <h3 class="text-xl font-semibold text-gray-900 mb-6">Write a Review</h3>
+    
+    {% if user.is_authenticated %}
+        {% if user_has_reviewed %}
+        <div class="text-center py-4">
+            <p class="text-gray-600">You have already reviewed this product.</p>
+        </div>
+        {% else %}
+        <form id="review-form" method="POST" action="{% url 'reviews:add_review' product.slug %}">
+            {% csrf_token %}
+            
+            {# Star Rating #}
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Overall Rating <span class="text-red-500">*</span></label>
+                <div class="flex items-center gap-1 star-rating-input" id="star-rating">
+                    {% for i in "12345" %}
+                    <button type="button" class="star-btn p-1 text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ i }}">
+                        <svg class="w-8 h-8 fill-current" viewBox="0 0 20 20">
+                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                        </svg>
+                    </button>
+                    {% endfor %}
+                    <input type="hidden" name="rating" id="rating-input" required>
+                    <span id="rating-text" class="ml-3 text-sm text-gray-500"></span>
+                </div>
+            </div>
+            
+            {# Review Title #}
+            <div class="mb-4">
+                <label for="review-title" class="block text-sm font-medium text-gray-700 mb-2">Review Title</label>
+                <input 
+                    type="text" 
+                    id="review-title" 
+                    name="title" 
+                    maxlength="200"
+                    placeholder="Sum up your experience in a few words"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                >
+            </div>
+            
+            {# Review Comment #}
+            <div class="mb-6">
+                <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-2">Your Review <span class="text-red-500">*</span></label>
+                <textarea 
+                    id="review-comment" 
+                    name="comment" 
+                    rows="4"
+                    required
+                    minlength="10"
+                    placeholder="What did you like or dislike about this fragrance? How does it perform?"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                ></textarea>
+            </div>
+            
+            {# Perfume-specific Ratings (Optional) #}
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-700 mb-4">Perfume Characteristics (Optional)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {# Longevity #}
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-2">Longevity</label>
+                        <div class="flex items-center gap-1 mini-star-rating" data-field="longevity_rating">
+                            {% for i in "12345" %}
+                            <button type="button" class="mini-star-btn p-0.5 text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ i }}">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            </button>
+                            {% endfor %}
+                            <input type="hidden" name="longevity_rating">
+                        </div>
+                    </div>
+                    
+                    {# Sillage #}
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-2">Sillage (Projection)</label>
+                        <div class="flex items-center gap-1 mini-star-rating" data-field="sillage_rating">
+                            {% for i in "12345" %}
+                            <button type="button" class="mini-star-btn p-0.5 text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ i }}">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            </button>
+                            {% endfor %}
+                            <input type="hidden" name="sillage_rating">
+                        </div>
+                    </div>
+                    
+                    {# Value #}
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-2">Value for Money</label>
+                        <div class="flex items-center gap-1 mini-star-rating" data-field="value_rating">
+                            {% for i in "12345" %}
+                            <button type="button" class="mini-star-btn p-0.5 text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ i }}">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                </svg>
+                            </button>
+                            {% endfor %}
+                            <input type="hidden" name="value_rating">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+                >
+                    Submit Review
+                </button>
+            </div>
+        </form>
+        
+        <script>
+        // Star rating functionality
+        const ratingTexts = {
+            1: 'Poor',
+            2: 'Fair', 
+            3: 'Good',
+            4: 'Very Good',
+            5: 'Excellent'
+        };
+        
+        // Main rating
+        const starBtns = document.querySelectorAll('#star-rating .star-btn');
+        const ratingInput = document.getElementById('rating-input');
+        const ratingText = document.getElementById('rating-text');
+        
+        starBtns.forEach((btn, index) => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const rating = parseInt(this.dataset.rating);
+                ratingInput.value = rating;
+                ratingText.textContent = ratingTexts[rating];
+                
+                starBtns.forEach((b, i) => {
+                    if (i < rating) {
+                        b.classList.remove('text-gray-300');
+                        b.classList.add('text-yellow-400');
+                    } else {
+                        b.classList.remove('text-yellow-400');
+                        b.classList.add('text-gray-300');
+                    }
+                });
+            });
+            
+            btn.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                starBtns.forEach((b, i) => {
+                    if (i < rating) {
+                        b.classList.remove('text-gray-300');
+                        b.classList.add('text-yellow-400');
+                    }
+                });
+            });
+        });
+        
+        document.getElementById('star-rating').addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingInput.value) || 0;
+            starBtns.forEach((b, i) => {
+                if (i < currentRating) {
+                    b.classList.remove('text-gray-300');
+                    b.classList.add('text-yellow-400');
+                } else {
+                    b.classList.remove('text-yellow-400');
+                    b.classList.add('text-gray-300');
+                }
+            });
+        });
+        
+        // Mini star ratings for perfume characteristics
+        document.querySelectorAll('.mini-star-rating').forEach(container => {
+            const btns = container.querySelectorAll('.mini-star-btn');
+            const input = container.querySelector('input');
+            
+            btns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const rating = parseInt(this.dataset.rating);
+                    input.value = rating;
+                    
+                    btns.forEach((b, i) => {
+                        if (i < rating) {
+                            b.classList.remove('text-gray-300');
+                            b.classList.add('text-yellow-400');
+                        } else {
+                            b.classList.remove('text-yellow-400');
+                            b.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        });
+        
+        // Form submission
+        document.getElementById('review-form').addEventListener('submit', function(e) {
+            if (!ratingInput.value) {
+                e.preventDefault();
+                alert('Please select a star rating');
+                return false;
+            }
+        });
+        </script>
+        {% endif %}
+    {% else %}
+    <div class="text-center py-4">
+        <p class="text-gray-600 mb-4">Please log in to write a review.</p>
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="inline-block px-6 py-2 bg-pink-600 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors">
+            Log In
+        </a>
+    </div>
+    {% endif %}
+</div>

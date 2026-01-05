@@ -237,14 +237,5 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     export_active_subscribers.short_description = "Export selected subscribers to CSV"
 
 
-# Register all models with the default admin site for unified admin
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(PaymentMethod, PaymentMethodAdmin)
-admin.site.register(SiteSettings, SiteSettingsAdmin)
-admin.site.register(HeroSection, HeroSectionAdmin)
-admin.site.register(HomepageSection, HomepageSectionAdmin)
-admin.site.register(PromotionalBanner, PromotionalBannerAdmin)
-admin.site.register(ShopPageContent, ShopPageContentAdmin)
-admin.site.register(PageContent, PageContentAdmin)
-admin.site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)

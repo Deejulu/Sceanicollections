@@ -1,6 +1,10 @@
+pip install -r requirements.txt
+
 #!/usr/bin/env bash
 set -o errexit
 
+# Upgrade pip, setuptools, and wheel for Python 3.13 compatibility
+pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 python manage.py migrate
 

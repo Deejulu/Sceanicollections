@@ -66,7 +66,10 @@ class ProductAdmin(admin.ModelAdmin):
         from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
         cmd = PopulateSampleDataCommand()
         cmd.handle()
-        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+        # Ensure all products have stock
+        from store.models import Product
+        updated = Product.objects.update(stock_quantity=50)
+        self.message_user(request, f"Sample categories and products have been populated! All products now have stock (50 units each).", level=messages.SUCCESS)
     populate_sample_data.short_description = "Populate sample categories and products"
 
     def mark_as_featured(self, request, queryset):
@@ -104,8 +107,11 @@ class CategoryAdmin(admin.ModelAdmin):
             return
         from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
         cmd = PopulateSampleDataCommand()
+        # Ensure all products have stock
+        from store.models import Product
         cmd.handle()
-        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+        Product.objects.update(stock_quantity=50)
+        self.message_user(request, f"Sample categories and products have been populated! All products now have stock (50 units each).", level=messages.SUCCESS)
     populate_sample_data.short_description = "Populate sample categories and products"
 
     def product_count(self, obj):

@@ -19,25 +19,21 @@ class Command(BaseCommand):
             created_categories.append(cat)
         self.stdout.write(self.style.SUCCESS(f'Created {len(created_categories)} categories.'))
 
-        # Sample products
-        products = [
-            {'name': 'Ocean Breeze', 'category': created_categories[0], 'price': 29.99},
-            {'name': 'Vanilla Candle', 'category': created_categories[1], 'price': 19.99},
-            {'name': 'Lavender Diffuser', 'category': created_categories[2], 'price': 24.99},
-            {'name': 'Peppermint Oil', 'category': created_categories[3], 'price': 14.99},
-            {'name': 'Citrus Room Spray', 'category': created_categories[4], 'price': 12.99},
-        ]
+        # Add 20 products for each category
         created_products = []
-        for prod in products:
-            p, created = Product.objects.get_or_create(
-                name=prod['name'],
-                defaults={
-                    'category': prod['category'],
-                    'price': prod['price'],
-                    'description': f'Sample description for {prod["name"]}',
-                    'is_active': True,
-                }
-            )
-            created_products.append(p)
+        for idx, category in enumerate(created_categories):
+            for i in range(1, 21):
+                product_name = f"{category.name} Product {i}"
+                price = round(10 + idx * 5 + i * 1.25, 2)  # Just for variety
+                p, created = Product.objects.get_or_create(
+                    name=product_name,
+                    defaults={
+                        'category': category,
+                        'price': price,
+                        'description': f'Sample description for {product_name}',
+                        'is_active': True,
+                    }
+                )
+                created_products.append(p)
         self.stdout.write(self.style.SUCCESS(f'Created {len(created_products)} products.'))
         self.stdout.write(self.style.SUCCESS('Sample data population complete!'))

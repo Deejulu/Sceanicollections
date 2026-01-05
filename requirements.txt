@@ -1,3 +1,6 @@
+# Required for PhoneNumberField
+phonenumbers
+django-phonenumber-field
 DJANGO==4.2.11
 setuptools>=69.0.0
 wheel>=0.42.0

@@ -236,14 +236,15 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
         return response
     export_active_subscribers.short_description = "Export selected subscribers to CSV"
 
-from aniscents.custom_admin import custom_admin_site
-custom_admin_site.register(Category, CategoryAdmin)
-custom_admin_site.register(Product, ProductAdmin)
-custom_admin_site.register(PaymentMethod, PaymentMethodAdmin)
-custom_admin_site.register(SiteSettings, SiteSettingsAdmin)
-custom_admin_site.register(HeroSection, HeroSectionAdmin)
-custom_admin_site.register(HomepageSection, HomepageSectionAdmin)
-custom_admin_site.register(PromotionalBanner, PromotionalBannerAdmin)
-custom_admin_site.register(ShopPageContent, ShopPageContentAdmin)
-custom_admin_site.register(PageContent, PageContentAdmin)
-custom_admin_site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)
+
+# Register all models with the default admin site for unified admin
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(PaymentMethod, PaymentMethodAdmin)
+admin.site.register(SiteSettings, SiteSettingsAdmin)
+admin.site.register(HeroSection, HeroSectionAdmin)
+admin.site.register(HomepageSection, HomepageSectionAdmin)
+admin.site.register(PromotionalBanner, PromotionalBannerAdmin)
+admin.site.register(ShopPageContent, ShopPageContentAdmin)
+admin.site.register(PageContent, PageContentAdmin)
+admin.site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)

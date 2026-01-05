@@ -34,7 +34,7 @@ def add_products():
             "name": "Midnight Rose",
             "category": categories.get("Perfume Oils"),
             "concentration": "oil",
-            "description": "A captivating blend of rose and bergamot with a sensual base of sandalwood and musk.",
+            "short_description": "A captivating blend of rose and bergamot with a sensual base of sandalwood and musk.",
             "price": 15000.00,
             "stock_quantity": 100,
             "top_notes": "Rose, Bergamot",
@@ -42,7 +42,7 @@ def add_products():
             "base_notes": "Sandalwood, Musk",
             "is_featured": True,
             "is_bestseller": True,
-            "is_active": True,
+            "is_available": True,
             "images": [
                 "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800",
                 "https://images.unsplash.com/photo-1590736969956-6d9c2a8d6972?w=800"
@@ -52,7 +52,7 @@ def add_products():
             "name": "Citrus Splash",
             "category": categories.get("Body Sprays"),
             "concentration": "edp",
-            "description": "A fresh burst of citrus and florals for all-day energy.",
+            "short_description": "A fresh burst of citrus and florals for all-day energy.",
             "price": 8000.00,
             "stock_quantity": 80,
             "top_notes": "Lemon, Orange",
@@ -60,7 +60,7 @@ def add_products():
             "base_notes": "Cedarwood, Musk",
             "is_featured": True,
             "is_bestseller": False,
-            "is_active": True,
+            "is_available": True,
             "images": [
                 "https://images.unsplash.com/photo-1590736969956-6d9c2a8d6972?w=800"
             ]
@@ -69,7 +69,7 @@ def add_products():
             "name": "Amber Oud",
             "category": categories.get("Eau de Parfum (EDP)"),
             "concentration": "edp",
-            "description": "Rich amber and oud notes for a luxurious experience.",
+            "short_description": "Rich amber and oud notes for a luxurious experience.",
             "price": 25000.00,
             "stock_quantity": 50,
             "top_notes": "Amber, Saffron",
@@ -77,7 +77,7 @@ def add_products():
             "base_notes": "Patchouli, Vanilla",
             "is_featured": True,
             "is_bestseller": True,
-            "is_active": True,
+            "is_available": True,
             "images": [
                 "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800"
             ]
@@ -86,7 +86,7 @@ def add_products():
             "name": "Mini Discovery Set",
             "category": categories.get("Mini Sets"),
             "concentration": "oil",
-            "description": "A set of mini perfume oils to discover your favorite scent.",
+            "short_description": "A set of mini perfume oils to discover your favorite scent.",
             "price": 12000.00,
             "stock_quantity": 30,
             "top_notes": "Mixed",

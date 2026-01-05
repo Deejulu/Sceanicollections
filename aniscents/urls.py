@@ -24,11 +24,12 @@ from django.conf.urls.static import static
 
 from .views import about_page, contact_page, faq_page, privacy_page, terms_page, shipping_page, returns_page, tutorial_page, debug_test_view
 from django.http import HttpResponse
+from .views import home
 
 
 urlpatterns = [
-    # Minimal homepage for diagnosis
-    path('', lambda r: HttpResponse("TEST OK"), name='home'),
+    # Restore home view with error logging
+    path('', home, name='home'),
     # Admin
     path('admin/', admin.site.urls),
 

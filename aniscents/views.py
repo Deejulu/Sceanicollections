@@ -6,18 +6,26 @@ def debug_test_view(request):
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+
+import logging
+logger = logging.getLogger(__name__)
 from store.models import Product, Category
 from store.cms_models import PageContent
 
 def home(request):
-    featured_products = Product.objects.filter(is_featured=True, is_available=True)[:8]
-    new_arrivals = Product.objects.filter(is_new=True, is_available=True).order_by('-created_at')[:8]
-    categories = Category.objects.filter(is_active=True)[:6]
-    return render(request, 'pages/index.html', {
-        'featured_products': featured_products,
-        'new_arrivals': new_arrivals,
-        'categories': categories,
-    })
+    try:
+        featured_products = Product.objects.filter(is_featured=True, is_available=True)[:8]
+        new_arrivals = Product.objects.filter(is_new=True, is_available=True).order_by('-created_at')[:8]
+        categories = Category.objects.filter(is_active=True)[:6]
+        logger.info(f"Featured: {featured_products.count()}, New: {new_arrivals.count()}, Categories: {categories.count()}")
+        return render(request, 'pages/index.html', {
+            'featured_products': featured_products,
+            'new_arrivals': new_arrivals,
+            'categories': categories,
+        })
+    except Exception as e:
+        logger.error(f"Homepage error: {str(e)}", exc_info=True)
+        return HttpResponse(f"Homepage error: {str(e)}")
 
 
 def page_view(request, page_slug):

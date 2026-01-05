@@ -18,6 +18,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from .custom_admin import custom_admin_site
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -27,11 +28,12 @@ from django.http import HttpResponse
 from .views import home
 
 
+
 urlpatterns = [
     # Restore home view with error logging
     path('', home, name='home'),
-    # Admin
-    path('admin/', admin.site.urls),
+    # Custom admin with extra view
+    path('admin/', custom_admin_site.urls),
 
     # Debug test view
     path('debug-test/', debug_test_view, name='debug_test'),

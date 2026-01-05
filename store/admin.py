@@ -14,6 +14,10 @@ class ProductImageInline(admin.TabularInline):
         return "No image"
     image_preview.short_description = "Preview"
 
+
+from django.contrib import messages
+from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
+
 class ProductAdmin(admin.ModelAdmin):
     """Admin for Product model."""
     list_display = ('name', 'category', 'price', 'stock_quantity', 'is_featured', 'created_at')
@@ -45,7 +49,8 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
     inlines = [ProductImageInline]
-    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products']
+    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products', 'populate_sample_data']
+
     def mark_as_featured(self, request, queryset):
         queryset.update(is_featured=True)
         self.message_user(request, f"{queryset.count()} products marked as featured")
@@ -63,6 +68,14 @@ class ProductAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} products deactivated")
     deactivate_products.short_description = "Deactivate selected products"
 
+    def populate_sample_data(self, request, queryset):
+        # Call the management command logic directly
+        cmd = PopulateSampleDataCommand()
+        cmd.handle()
+        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+    populate_sample_data.short_description = "Populate sample categories and products"
+
+
 class CategoryAdmin(admin.ModelAdmin):
     """Admin for Category model."""
     list_display = ('name', 'is_active', 'product_count')
@@ -70,12 +83,30 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     list_editable = ('is_active',)
     prepopulated_fields = {'slug': ('name',)}
+    actions = ['populate_sample_data']
+
     def product_count(self, obj):
         return obj.products.count()
     product_count.short_description = 'Products'
 
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Product, ProductAdmin)
+    def populate_sample_data(self, request, queryset):
+        cmd = PopulateSampleDataCommand()
+        cmd.handle()
+        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
+    populate_sample_data.short_description = "Populate sample categories and products"
+
+
+# Register models with both default and custom admin site for compatibility
+from aniscents.custom_admin import custom_admin_site
+custom_admin_site.register(Category, CategoryAdmin)
+custom_admin_site.register(Product, ProductAdmin)
+custom_admin_site.register(SiteSettings, SiteSettingsAdmin)
+custom_admin_site.register(HeroSection, HeroSectionAdmin)
+custom_admin_site.register(HomepageSection, HomepageSectionAdmin)
+custom_admin_site.register(PromotionalBanner, PromotionalBannerAdmin)
+custom_admin_site.register(ShopPageContent, ShopPageContentAdmin)
+custom_admin_site.register(PageContent, PageContentAdmin)
+custom_admin_site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)
 
 
 # CMS Models Admin

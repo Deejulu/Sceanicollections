@@ -4,6 +4,32 @@ from django.urls import reverse
 from ckeditor.fields import RichTextField
 import uuid
 
+# ...existing code...
+
+# PaymentMethod model definition (moved below imports)
+class PaymentMethod(models.Model):
+    """Payment method model for admin control."""
+    name = models.CharField(max_length=50, unique=True)
+    code = models.SlugField(max_length=50, unique=True, help_text="Short code for use in code, e.g. 'paystack', 'bank_transfer'")
+    is_active = models.BooleanField(default=True, help_text="Should this payment method be available to customers?")
+    display_order = models.PositiveIntegerField(default=0, help_text="Order in which to display payment methods.")
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name = 'Payment Method'
+        verbose_name_plural = 'Payment Methods'
+
+    def __str__(self):
+        return self.name
+from django.db import models
+from django.utils.text import slugify
+from django.urls import reverse
+from ckeditor.fields import RichTextField
+import uuid
+
 class Category(models.Model):
 	"""Product category model."""
 	name = models.CharField(max_length=100, unique=True)

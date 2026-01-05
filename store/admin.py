@@ -1,6 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Category, Product, ProductImage
+from .models import Category, Product, ProductImage, PaymentMethod
+# PaymentMethod admin
+@admin.register(PaymentMethod)
+class PaymentMethodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_active', 'display_order', 'updated_at')
+    list_editable = ('is_active', 'display_order')
+    search_fields = ('name', 'code', 'description')
+    ordering = ('display_order', 'name')
+    list_filter = ('is_active',)
 from .cms_models import SiteSettings, HeroSection, HomepageSection, PromotionalBanner, ShopPageContent, PageContent, NewsletterSubscriber
 
 class ProductImageInline(admin.TabularInline):
@@ -94,19 +102,6 @@ class CategoryAdmin(admin.ModelAdmin):
         cmd.handle()
         self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
     populate_sample_data.short_description = "Populate sample categories and products"
-
-
-# Register models with both default and custom admin site for compatibility
-from aniscents.custom_admin import custom_admin_site
-custom_admin_site.register(Category, CategoryAdmin)
-custom_admin_site.register(Product, ProductAdmin)
-custom_admin_site.register(SiteSettings, SiteSettingsAdmin)
-custom_admin_site.register(HeroSection, HeroSectionAdmin)
-custom_admin_site.register(HomepageSection, HomepageSectionAdmin)
-custom_admin_site.register(PromotionalBanner, PromotionalBannerAdmin)
-custom_admin_site.register(ShopPageContent, ShopPageContentAdmin)
-custom_admin_site.register(PageContent, PageContentAdmin)
-custom_admin_site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)
 
 
 # CMS Models Admin
@@ -240,3 +235,15 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
             writer.writerow([subscriber.email, subscriber.name, subscriber.subscribed_at, subscriber.source])
         return response
     export_active_subscribers.short_description = "Export selected subscribers to CSV"
+
+from aniscents.custom_admin import custom_admin_site
+custom_admin_site.register(Category, CategoryAdmin)
+custom_admin_site.register(Product, ProductAdmin)
+custom_admin_site.register(PaymentMethod, PaymentMethodAdmin)
+custom_admin_site.register(SiteSettings, SiteSettingsAdmin)
+custom_admin_site.register(HeroSection, HeroSectionAdmin)
+custom_admin_site.register(HomepageSection, HomepageSectionAdmin)
+custom_admin_site.register(PromotionalBanner, PromotionalBannerAdmin)
+custom_admin_site.register(ShopPageContent, ShopPageContentAdmin)
+custom_admin_site.register(PageContent, PageContentAdmin)
+custom_admin_site.register(NewsletterSubscriber, NewsletterSubscriberAdmin)

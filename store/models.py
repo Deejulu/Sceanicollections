@@ -344,14 +344,6 @@ class SampleSetProduct(models.Model):
 	def __str__(self):
 		return self.name
 
-class ProductImage(models.Model):
-	product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-	image = models.ImageField(upload_to='products/')
-	is_primary = models.BooleanField(default=False)
-	alt_text = models.CharField(max_length=200, blank=True)
-    
-	class Meta:
-		ordering = ['-is_primary', 'id']
 
 
 # Import CMS models to make them available from store.models

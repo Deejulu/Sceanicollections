@@ -33,6 +33,9 @@ class Command(BaseCommand):
                         'short_description': f'Sample description for {product_name}',
                         'full_description': f'Sample description for {product_name}',
                         'is_available': True,
+                        'size_ml': 50,
+                        'concentration': 'edp',
+                        'gender': 'unisex',
                     }
                 )
                 created_products.append(p)

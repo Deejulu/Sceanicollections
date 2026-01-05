@@ -22,7 +22,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-from .views import home, about_page, contact_page, faq_page, privacy_page, terms_page, shipping_page, returns_page, tutorial_page
+from .views import home, about_page, contact_page, faq_page, privacy_page, terms_page, shipping_page, returns_page, tutorial_page, debug_test_view
 
 urlpatterns = [
     # Admin
@@ -30,6 +30,9 @@ urlpatterns = [
 
     # Home
     path('', home, name='home'),
+
+    # Debug test view
+    path('debug-test/', debug_test_view, name='debug_test'),
 
     # Static Pages
     path('about/', about_page, name='about'),

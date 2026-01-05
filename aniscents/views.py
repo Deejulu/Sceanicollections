@@ -1,3 +1,8 @@
+from django.http import HttpResponse
+
+# Debug test view
+def debug_test_view(request):
+    return HttpResponse("Debug test view is working!")
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST

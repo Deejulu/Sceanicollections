@@ -57,7 +57,7 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
     inlines = [ProductImageInline]
-    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products', 'populate_sample_data']
+    actions = ['mark_as_featured', 'mark_as_not_featured', 'activate_products', 'deactivate_products']
 
     def mark_as_featured(self, request, queryset):
         queryset.update(is_featured=True)
@@ -76,12 +76,7 @@ class ProductAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} products deactivated")
     deactivate_products.short_description = "Deactivate selected products"
 
-    def populate_sample_data(self, request, queryset):
-        # Call the management command logic directly
-        cmd = PopulateSampleDataCommand()
-        cmd.handle()
-        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
-    populate_sample_data.short_description = "Populate sample categories and products"
+
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -91,17 +86,13 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     list_editable = ('is_active',)
     prepopulated_fields = {'slug': ('name',)}
-    actions = ['populate_sample_data']
+    actions = []
 
     def product_count(self, obj):
         return obj.products.count()
     product_count.short_description = 'Products'
 
-    def populate_sample_data(self, request, queryset):
-        cmd = PopulateSampleDataCommand()
-        cmd.handle()
-        self.message_user(request, "Sample categories and products have been populated!", level=messages.SUCCESS)
-    populate_sample_data.short_description = "Populate sample categories and products"
+
 
 
 # CMS Models Admin

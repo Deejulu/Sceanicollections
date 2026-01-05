@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="dashboard-module" style="margin-bottom: 2em;">
+        <h2>Quick Actions</h2>
+        <a href="{% url 'admin:populate_sample_data' %}" class="button btn btn-success" style="font-size: 1.1em; padding: 0.5em 1.5em;">
+            <i class="fas fa-magic"></i> Populate Shop with Sample Categories & Products
+        </a>
+    </div>
+    {{ block.super }}
+{% endblock %}

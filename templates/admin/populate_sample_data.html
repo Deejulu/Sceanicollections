@@ -17,5 +17,8 @@
             {% endfor %}
         </ul>
     {% endif %}
+    {% if error %}
+        <div class="errornote">{{ error }}</div>
+    {% endif %}
 </div>
 {% endblock %}

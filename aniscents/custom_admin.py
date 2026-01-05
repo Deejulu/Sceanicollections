@@ -5,14 +5,20 @@ from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from store.management.commands.populate_sample_data import Command as PopulateSampleDataCommand
 
+
 @staff_member_required
 def populate_sample_data_view(request):
+	error = None
 	if request.method == 'POST':
-		cmd = PopulateSampleDataCommand()
-		cmd.handle()
-		messages.success(request, 'Sample categories and products have been populated!')
-		return redirect(request.path)
-	return render(request, 'admin/populate_sample_data.html')
+		try:
+			cmd = PopulateSampleDataCommand()
+			cmd.handle()
+			messages.success(request, 'Sample categories and products have been populated!')
+			return redirect(request.path)
+		except Exception as e:
+			error = str(e)
+			messages.error(request, f"Error populating sample data: {error}")
+	return render(request, 'admin/populate_sample_data.html', {'error': error})
 
 class CustomAdminSite(admin.AdminSite):
 	site_header = 'AniScents Administration'
